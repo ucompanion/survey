@@ -8,119 +8,157 @@ const formData = [
             { id: "benchmarking", label: "벤치마킹", type: "textarea", placeholder: "참고할 만한 사이트 URL이나 특징을 적어주세요." },
             { id: "reason", label: "개편이유", type: "textarea", placeholder: "프로젝트를 진행하게 된 주된 배경을 적어주세요." },
             { id: "requirements", label: "정보구조 및 기능개선 요구사항", type: "textarea", placeholder: "핵심적으로 필요한 기능이나 메뉴 구조 변경 사항을 적어주세요." },
-            { id: "purpose", label: "홈페이지 목적", type: "radio", options: ["기업홍보", "쇼핑몰", "예약", "커뮤니티", "서비스", "랜딩페이지", "기타"], allowDirectInput: true }
+            { id: "purpose", label: "홈페이지 목적", type: "radio", options: ["기업홍보", "쇼핑몰", "예약", "커뮤니티", "서비스", "랜딩페이지", "기타", "확인중"], allowDirectInput: true },
+            { id: "competitors", label: "경쟁업체", type: "text", placeholder: "동일한 서비스를 제공하는 경쟁업체명 또는 URL을 입력해 주세요." },
+            { id: "brand_image", label: "선호하는 브랜드 이미지", type: "text", placeholder: "전문적이고 신뢰감 있는 이미지, 친근하고 편안한 이미지, 세련되고 고급스러운 이미지" },
+            { id: "visual_style", label: "원하는 화면 구성이나 시각적 표현 방식", type: "text", placeholder: "사진 중심, 텍스트 중심, 심플한 구성, 정보가 풍부한 구성, 애니메이션·인터랙션 활용" }
         ]
     },
     {
         category: "도메인",
         icon: "ph-globe",
         items: [
-            { id: "domain_owner", label: "도메인 소유자", type: "radio", options: ["회사", "대표자", "개인", "개발사", "대행사", "모름"] },
-            { id: "domain_registrar", label: "도메인 등록업체", type: "radio", options: ["가비아", "카페24", "후이즈", "AWS Route53", "Cloudflare", "GoDaddy", "기타"], allowDirectInput: true },
-            { id: "account_access", label: "계정 접근 가능", type: "radio", options: ["가능", "불가능", "확인필요"] },
-            { id: "ssl_use", label: "SSL 사용", type: "radio", options: ["사용", "미사용"] }
+            { id: "domain_owner", label: "도메인 소유자", type: "radio", options: ["회사", "대표자", "개인", "개발사", "대행사", "모름", "확인중"] },
+            { id: "domain_registrar", label: "도메인 등록업체", type: "radio", options: ["가비아", "카페24", "후이즈", "AWS Route53", "Cloudflare", "GoDaddy", "기타", "확인중"], allowDirectInput: true },
+            { id: "account_access", label: "계정 접근 가능", type: "radio", options: ["가능", "불가능", "확인필요", "확인중"] },
+            { id: "ssl_use", label: "SSL 사용", type: "radio", options: ["사용", "미사용", "확인중"] }
         ]
     },
     {
         category: "서버",
         icon: "ph-hard-drives",
         items: [
-            { id: "server_type", label: "서버 운영방식", type: "radio", options: ["클라우드", "IDC", "웹호스팅", "서버호스팅", "사내서버"] },
-            { id: "cloud_type", label: "클라우드 종류", type: "radio", options: ["AWS", "Azure", "GCP", "NCP", "KT Cloud", "NHN Cloud", "해당없음"] },
-            { id: "os", label: "운영체제", type: "radio", options: ["Ubuntu", "CentOS", "RockyLinux", "Debian", "Windows Server", "기타"], allowDirectInput: true },
-            { id: "web_server", label: "웹서버", type: "radio", options: ["Apache", "Nginx", "IIS", "LiteSpeed", "기타"], allowDirectInput: true },
-            { id: "was", label: "WAS", type: "radio", options: ["Tomcat", "JBoss", "WildFly", "Jetty", "Node.js", "PHP-FPM", "없음"] }
+            { id: "server_type", label: "서버 운영방식", type: "radio", options: ["클라우드", "IDC", "웹호스팅", "서버호스팅", "사내서버", "확인중"] },
+            { id: "cloud_type", label: "클라우드 종류", type: "radio", options: ["AWS", "Azure", "GCP", "NCP", "KT Cloud", "NHN Cloud", "해당없음", "확인중"] },
+            { id: "os", label: "운영체제", type: "radio", options: ["Ubuntu", "CentOS", "RockyLinux", "Debian", "Windows Server", "기타", "확인중"], allowDirectInput: true },
+            { id: "web_server", label: "웹서버", type: "radio", options: ["Apache", "Nginx", "IIS", "LiteSpeed", "기타", "확인중"], allowDirectInput: true },
+            { id: "was", label: "WAS", type: "radio", options: ["Tomcat", "JBoss", "WildFly", "Jetty", "Node.js", "PHP-FPM", "없음", "확인중"] }
         ]
     },
     {
         category: "개발환경",
         icon: "ph-code",
         items: [
-            { id: "language", label: "개발언어", type: "checkbox", options: ["PHP", "Java", "ASP.NET", "Python", "Node.js", "Ruby", "Go", "기타"], allowDirectInput: true },
-            { id: "framework", label: "프레임워크", type: "checkbox", options: ["Spring", "Spring Boot", "Laravel", "Django", "Express", "NestJS", "CodeIgniter", "없음"] },
-            { id: "frontend", label: "프론트엔드", type: "checkbox", options: ["HTML+jQuery", "React", "Vue", "Angular", "Next.js", "Nuxt.js", "Svelte"] }
+            { id: "language", label: "개발언어", type: "checkbox", options: ["PHP", "Java", "ASP.NET", "Python", "Node.js", "Ruby", "Go", "기타", "확인중"], allowDirectInput: true },
+            { id: "framework", label: "프레임워크", type: "checkbox", options: ["Spring", "Spring Boot", "Laravel", "Django", "Express", "NestJS", "CodeIgniter", "없음", "확인중"] },
+            { id: "frontend", label: "프론트엔드", type: "checkbox", options: ["HTML+jQuery", "React", "Vue", "Angular", "Next.js", "Nuxt.js", "Svelte", "확인중"] }
         ]
     },
     {
         category: "DB",
         icon: "ph-database",
         items: [
-            { id: "db_type", label: "DB 종류", type: "checkbox", options: ["MySQL", "MariaDB", "PostgreSQL", "Oracle", "MSSQL", "SQLite"] },
-            { id: "backup", label: "백업", type: "radio", options: ["자동", "수동", "없음"] }
+            { id: "db_type", label: "DB 종류", type: "checkbox", options: ["MySQL", "MariaDB", "PostgreSQL", "Oracle", "MSSQL", "SQLite", "확인중"] },
+            { id: "backup", label: "백업", type: "radio", options: ["자동", "수동", "없음", "확인중"] }
         ]
     },
     {
         category: "CMS",
         icon: "ph-layout",
         items: [
-            { id: "cms_use", label: "CMS 사용", type: "radio", options: ["사용", "미사용"] },
-            { id: "cms_type", label: "CMS 종류", type: "radio", options: ["워드프레스", "그누보드", "영카트", "XE", "Rhymix", "Drupal", "Joomla", "기타"], allowDirectInput: true }
+            { id: "cms_use", label: "CMS 사용", type: "radio", options: ["사용", "미사용", "확인중"] },
+            { id: "cms_type", label: "CMS 종류", type: "radio", options: ["워드프레스", "그누보드", "영카트", "XE", "Rhymix", "Drupal", "Joomla", "기타", "확인중"], allowDirectInput: true }
         ]
     },
     {
         category: "API",
         icon: "ph-plugs",
         items: [
-            { id: "api_use", label: "API 사용", type: "radio", options: ["있음", "없음"] },
-            { id: "api_details", label: "API 상세 내용 (사용 시)", type: "checkbox", options: ["PG", "소셜로그인", "지도", "SMS", "알림톡", "Firebase", "ERP", "기타"], allowDirectInput: true }
+            { id: "api_use", label: "API 사용", type: "radio", options: ["있음", "없음", "확인중"] },
+            { id: "api_details", label: "API 상세 내용 (사용 시)", type: "checkbox", options: ["PG", "소셜로그인", "지도", "SMS", "알림톡", "Firebase", "ERP", "기타", "확인중"], allowDirectInput: true }
         ]
     },
     {
         category: "운영",
         icon: "ph-terminal-window",
         items: [
-            { id: "git", label: "Git", type: "radio", options: ["GitHub", "GitLab", "Bitbucket", "Azure DevOps", "없음"] },
-            { id: "cicd", label: "CI/CD", type: "radio", options: ["GitHub Actions", "Jenkins", "GitLab CI", "없음"] }
+            { id: "git", label: "Git", type: "radio", options: ["GitHub", "GitLab", "Bitbucket", "Azure DevOps", "없음", "확인중"] },
+            { id: "cicd", label: "CI/CD", type: "radio", options: ["GitHub Actions", "Jenkins", "GitLab CI", "없음", "확인중"] }
         ]
     },
     {
         category: "메일",
         icon: "ph-envelope",
         items: [
-            { id: "mail_service", label: "메일 서비스", type: "radio", options: ["Google Workspace", "M365", "카페24", "네이버웍스", "자체메일", "기타"], allowDirectInput: true }
+            { id: "mail_service", label: "메일 서비스", type: "radio", options: ["Google Workspace", "M365", "카페24", "네이버웍스", "자체메일", "기타", "확인중"], allowDirectInput: true }
         ]
     },
     {
         category: "유지보수",
         icon: "ph-wrench",
         items: [
-            { id: "maintenance", label: "유지보수 업체", type: "radio", options: ["있음", "없음"] },
-            { id: "source_code", label: "소스코드 보유", type: "radio", options: ["회사", "개발사", "없음"] },
-            { id: "doc_design", label: "설계서", type: "radio", options: ["있음", "없음"] },
-            { id: "doc_erd", label: "DB ERD", type: "radio", options: ["있음", "없음"] },
-            { id: "doc_api", label: "API 문서", type: "radio", options: ["있음", "없음"] }
+            { id: "maintenance", label: "유지보수 업체", type: "radio", options: ["있음", "없음", "확인중"] },
+            { id: "source_code", label: "소스코드 보유", type: "radio", options: ["회사", "개발사", "없음", "확인중"] },
+            { id: "doc_design", label: "설계서", type: "radio", options: ["있음", "없음", "확인중"] },
+            { id: "doc_erd", label: "DB ERD", type: "radio", options: ["있음", "없음", "확인중"] },
+            { id: "doc_api", label: "API 문서", type: "radio", options: ["있음", "없음", "확인중"] }
         ]
     },
     {
         category: "CRM 연동",
         icon: "ph-users-three",
         items: [
-            { id: "crm_company", label: "CRM 업체", type: "radio", options: ["있음", "없음"] },
-            { id: "crm_api", label: "CRM API 제공여부", type: "radio", options: ["제공", "미제공"] }
+            { id: "crm_company", label: "CRM 업체", type: "radio", options: ["있음", "없음", "확인중"] },
+            { id: "crm_api", label: "CRM API 제공여부", type: "radio", options: ["제공", "미제공", "확인중"] }
+        ]
+    },
+    {
+        category: "프로젝트 예산",
+        icon: "ph-money",
+        items: [
+            { id: "project_budget", label: "예산", type: "text", placeholder: "금액을 직접 입력해주세요 (예: 5,000만원 내외)" }
         ]
     }
 ];
 
 // Global State
 let currentData = {};
-let currentMode = 'create'; // 'create', 'edit', 'admin'
+let currentMode = 'create'; // 'create', 'edit', 'admin', 'view'
 let adminClickCount = 0;
 let adminClickTimer = null;
+const urlParams = new URLSearchParams(window.location.search);
+const isTestMode = urlParams.get('test') === 'true';
 
 // DOM Elements
 const appContent = document.getElementById('app-content');
 const resultModal = document.getElementById('result-modal');
 const adminLoginModal = document.getElementById('admin-login-modal');
-const jsonResultOutput = document.getElementById('json-result-output');
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+    updateLoadButton();
     renderForm();
     setupAdminTrigger();
 });
 
+function updateLoadButton() {
+    const btn = document.getElementById('btn-load-data');
+    if (!btn) return;
+    
+    const saved = localStorage.getItem('ucomp_survey_data');
+    if (saved) {
+        try {
+            const data = JSON.parse(saved);
+            const siteName = data.site_name || '이름 없는 홈페이지';
+            const nameSpan = btn.querySelector('#load-site-name');
+            if (nameSpan) nameSpan.textContent = siteName;
+            btn.style.display = 'inline-flex';
+        } catch(e) {
+            btn.style.display = 'none';
+        }
+    } else {
+        btn.style.display = 'none';
+    }
+}
+
 function renderForm() {
     let html = `<div id="mode-banner"></div>`;
+    
+    if (currentMode === 'create' || currentMode === 'edit') {
+        if (isTestMode) {
+            html += `<div style="background: #ff9f43; color: white; text-align: center; padding: 10px; font-weight: bold; border-radius: var(--radius-md); margin-bottom: 20px;">🧪 테스트 작성 모드 (제출 시 테스트 데이터로 분류됩니다)</div>`;
+        }
+    }
     
     formData.forEach((section, sIndex) => {
         html += `
@@ -146,6 +184,7 @@ function renderForm() {
                 
                 let isOtherSelected = false;
                 let otherValue = '';
+                let anyChecked = false;
 
                 item.options.forEach((opt, oIndex) => {
                     const optId = `${item.id}_${oIndex}`;
@@ -176,14 +215,21 @@ function renderForm() {
                         }
                     }
 
+                    if (checked) anyChecked = true;
+
                     html += `
                         <label class="option-card ${checked ? 'active' : ''}" for="${optId}">
                             <input type="${item.type}" name="${item.id}" id="${optId}" value="${opt}" ${checked ? 'checked' : ''} onchange="handleOptionChange('${item.id}', '${item.type}', this, ${item.allowDirectInput})">
-                            <div class="option-indicator"></div>
+                            <div class="option-indicator">${item.type === 'checkbox' ? '<i class="ph-bold ph-check"></i>' : ''}</div>
                             ${opt}
                         </label>
                     `;
                 });
+                
+                if (!anyChecked) {
+                    html += `<div class="empty-indicator"><i class="ph ph-warning-circle"></i> 미입력 항목입니다</div>`;
+                }
+                
                 html += `</div>`;
 
                 if (item.allowDirectInput) {
@@ -202,9 +248,22 @@ function renderForm() {
     // Action buttons based on mode
     html += `<div class="form-actions">`;
     if (currentMode === 'create' || currentMode === 'edit') {
-        html += `<button type="button" class="btn btn-primary" onclick="submitForm()">
+        html += `<div style="display: flex; gap: 10px; width: 100%;">`;
+        html += `<button type="button" class="btn btn-secondary" onclick="window.fillDummyData()" style="flex: 1; background: #e0e0e0; color: #333; border: 1px solid #ccc; white-space: nowrap;">
+                    <i class="ph ph-magic-wand"></i> 테스트용 (자동채우기)
+                 </button>`;
+        html += `<button type="button" class="btn btn-primary" onclick="submitForm()" style="flex: 2;">
                     <i class="ph ph-check-circle"></i> 
                     ${currentMode === 'edit' ? '수정 완료' : '제출하기'}
+                 </button>`;
+        html += `</div>`;
+    } else if (currentMode === 'view') {
+        html += `<button type="button" class="btn btn-secondary" onclick="window.switchToEditMode()">
+                    <i class="ph ph-pencil-simple"></i> 정보 수정하기
+                 </button>`;
+    } else if (currentMode === 'admin') {
+        html += `<button type="button" class="btn btn-primary" onclick="window.showHtmlMailModal()" style="background: #20c997; border-color: #20c997;">
+                    <i class="ph ph-envelope-simple"></i> 메일 템플릿 HTML 소스 복사
                  </button>`;
     }
     html += `</div>`;
@@ -293,35 +352,129 @@ window.submitForm = function() {
     });
 
     currentData = data;
+    if (isTestMode) {
+        currentData._is_test = true;
+    }
+    
+    // Save to localStorage
+    localStorage.setItem('ucomp_survey_data', JSON.stringify(currentData));
+    updateLoadButton();
     
     // Show Modal
-    jsonResultOutput.textContent = JSON.stringify(currentData, null, 2);
+    const siteName = currentData.site_name || '프로젝트';
+    document.getElementById('result-title').innerHTML = `<strong>${siteName}</strong> 제출 완료`;
+    document.getElementById('result-desc').innerHTML = isTestMode ? "테스트 정보가 성공적으로 임시 저장되었습니다. (테스트)" : "입력하신 정보가 성공적으로 제출되었습니다.";
+    document.getElementById('btn-view-text').textContent = `확인 (작성한 화면 보기)`;
+    
     resultModal.classList.remove('hidden');
 };
 
+window.showHtmlMailModal = function() {
+    let mailHtml = `<div style="font-family: sans-serif; max-width: 800px; margin: 0 auto; color: #333; line-height: 1.6;">\n`;
+    mailHtml += `  <h2 style="color: #5f3dc4; border-bottom: 2px solid #5f3dc4; padding-bottom: 10px;">유컴패니온 프로젝트 구축 상세 질문지</h2>\n`;
+    
+    formData.forEach(section => {
+        mailHtml += `  <h3 style="background: #f8f9fa; padding: 10px; border-radius: 4px; margin-top: 20px;">[${section.category}]</h3>\n`;
+        mailHtml += `  <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px;">\n`;
+        section.items.forEach(item => {
+            let val = currentData[item.id];
+            let displayVal = "";
+            if (Array.isArray(val)) {
+                displayVal = val.join(', ');
+            } else if (val) {
+                displayVal = val;
+            } else {
+                displayVal = "<span style='color: #999;'>미입력</span>";
+            }
+            mailHtml += `    <tr>\n`;
+            mailHtml += `      <th style="width: 30%; text-align: left; padding: 12px 10px; border-bottom: 1px solid #eee; background: #fafafa; font-weight: 600;">${item.label}</th>\n`;
+            mailHtml += `      <td style="padding: 12px 10px; border-bottom: 1px solid #eee;">${displayVal}</td>\n`;
+            mailHtml += `    </tr>\n`;
+        });
+        mailHtml += `  </table>\n`;
+    });
+    mailHtml += `</div>`;
+    
+    document.getElementById('html-source-area').value = mailHtml;
+    document.getElementById('html-mail-modal').classList.remove('hidden');
+};
+
+document.getElementById('btn-copy-html').addEventListener('click', () => {
+    const textArea = document.getElementById('html-source-area');
+    textArea.select();
+    document.execCommand('copy');
+    showAlert('복사 완료', 'HTML 소스가 클립보드에 복사되었습니다.<br>메일 작성 시 HTML 모드에서 붙여넣기 해주세요.', 'success');
+});
+
 // Modal Actions
+window.showAlert = function(title, desc, type = 'success') {
+    document.getElementById('alert-title').textContent = title;
+    document.getElementById('alert-desc').innerHTML = desc;
+    
+    const iconEl = document.getElementById('alert-icon');
+    if (type === 'success') {
+        iconEl.innerHTML = '<i class="ph-fill ph-check-circle"></i>';
+        iconEl.style.color = 'var(--primary)';
+    } else if (type === 'error') {
+        iconEl.innerHTML = '<i class="ph-fill ph-warning-circle"></i>';
+        iconEl.style.color = '#ff4757';
+    } else if (type === 'info') {
+        iconEl.innerHTML = '<i class="ph-fill ph-info"></i>';
+        iconEl.style.color = '#0984e3';
+    }
+    
+    document.getElementById('alert-modal').classList.remove('hidden');
+};
+
+document.getElementById('btn-alert-ok')?.addEventListener('click', () => {
+    document.getElementById('alert-modal').classList.add('hidden');
+});
+
 document.querySelectorAll('.modal-close').forEach(btn => {
     btn.addEventListener('click', (e) => {
         e.target.closest('.modal-overlay').classList.add('hidden');
     });
 });
 
-document.getElementById('btn-edit').addEventListener('click', () => {
+document.getElementById('btn-view').addEventListener('click', () => {
     resultModal.classList.add('hidden');
-    currentMode = 'edit';
+    currentMode = 'view';
     renderForm();
     window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
-document.getElementById('btn-download').addEventListener('click', () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentData, null, 2));
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", "ucompanion_project_survey.json");
-    document.body.appendChild(downloadAnchorNode); // required for firefox
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
+document.getElementById('btn-confirm-cancel')?.addEventListener('click', () => {
+    document.getElementById('confirm-modal').classList.add('hidden');
 });
+
+document.getElementById('btn-confirm-ok')?.addEventListener('click', () => {
+    window.location.href = window.location.pathname;
+});
+
+document.getElementById('btn-load-data').addEventListener('click', () => {
+    const saved = localStorage.getItem('ucomp_survey_data');
+    if (saved) {
+        try {
+            currentData = JSON.parse(saved);
+            if (currentMode !== 'admin') {
+                currentMode = 'view';
+            }
+            renderForm();
+            showAlert('불러오기 완료', '저장된 홈페이지 데이터를 성공적으로 불러왔습니다.', 'success');
+        } catch (e) {
+            showAlert('오류 발생', '데이터를 불러오는 중 오류가 발생했습니다.', 'error');
+        }
+    } else {
+        showAlert('안내', '등록된(저장된) 홈페이지 정보가 없습니다.', 'info');
+    }
+});
+
+window.switchToEditMode = function() {
+    currentMode = 'edit';
+    renderForm();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
 
 // Admin Login Logic
 function setupAdminTrigger() {
@@ -331,10 +484,18 @@ function setupAdminTrigger() {
         
         clearTimeout(adminClickTimer);
         adminClickTimer = setTimeout(() => {
+            if (adminClickCount === 1) {
+                if (currentMode === 'create' || currentMode === 'edit') {
+                    document.getElementById('confirm-modal').classList.remove('hidden');
+                } else {
+                    window.location.href = window.location.pathname;
+                }
+            }
             adminClickCount = 0;
-        }, 3000);
+        }, 500);
 
         if (adminClickCount >= 5) {
+            clearTimeout(adminClickTimer);
             adminClickCount = 0;
             adminLoginModal.classList.remove('hidden');
             document.getElementById('admin-password').value = '';
@@ -346,29 +507,25 @@ function setupAdminTrigger() {
         const pw = document.getElementById('admin-password').value;
         if (pw === 'admin') {
             adminLoginModal.classList.add('hidden');
+            // Try to load saved data
+            const saved = localStorage.getItem('ucomp_survey_data');
+            if (saved) {
+                try {
+                    currentData = JSON.parse(saved);
+                } catch (e) {}
+            }
+            
+            if (Object.keys(currentData).length === 0) {
+                showAlert('안내', '등록된(저장된) 정보가 없습니다.', 'info');
+                return;
+            }
+            
             currentMode = 'admin';
             renderForm();
             
-            // Generate dummy data if empty for demo purposes
-            if (Object.keys(currentData).length === 0) {
-                currentData = {
-                    "site_name": "유컴패니온 샘플 데이터",
-                    "site_url": "https://sample.ucomp.co.kr",
-                    "benchmarking": "애플 공홈",
-                    "purpose": "기업홍보",
-                    "domain_owner": "회사",
-                    "server_type": "클라우드",
-                    "cloud_type": "AWS",
-                    "language": ["Node.js", "Python"],
-                    "frontend": ["React", "Next.js"],
-                    "db_type": ["PostgreSQL"]
-                };
-                renderForm(); // Re-render with dummy data
-            }
-            
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
-            alert('비밀번호가 일치하지 않습니다.');
+            showAlert('오류', '비밀번호가 일치하지 않습니다.', 'error');
         }
     });
 }
@@ -386,9 +543,13 @@ function updateModeUI() {
             const badge = document.createElement('div');
             badge.className = 'admin-badge';
             badge.textContent = 'ADMIN';
+            badge.style.background = '#ff4757';
             document.querySelector('.app-container').style.position = 'relative';
             document.querySelector('.app-container').style.overflow = 'hidden';
             document.querySelector('.app-container').appendChild(badge);
+        } else {
+            document.querySelector('.admin-badge').textContent = 'ADMIN';
+            document.querySelector('.admin-badge').style.background = '#ff4757';
         }
     } else if (currentMode === 'edit') {
         appContent.classList.remove('read-only-view');
@@ -396,6 +557,12 @@ function updateModeUI() {
         banner.style.background = '#ff9f43';
         banner.innerHTML = '<i class="ph ph-pencil"></i> 수정 모드';
         
+        const badge = document.querySelector('.admin-badge');
+        if (badge) badge.remove();
+        document.querySelector('.app-container').style.overflow = 'visible';
+    } else if (currentMode === 'view') {
+        appContent.classList.add('read-only-view');
+        banner.style.display = 'none';
         const badge = document.querySelector('.admin-badge');
         if (badge) badge.remove();
         document.querySelector('.app-container').style.overflow = 'visible';
@@ -408,3 +575,36 @@ function updateModeUI() {
         document.querySelector('.app-container').style.overflow = 'visible';
     }
 }
+
+window.fillDummyData = function() {
+    let dummy = {};
+    formData.forEach(section => {
+        section.items.forEach(item => {
+            if (item.type === 'text') {
+                dummy[item.id] = `테스트 ${item.label} 데이터`;
+            } else if (item.type === 'radio') {
+                const opts = item.options.filter(o => o !== '기타');
+                dummy[item.id] = opts[Math.floor(Math.random() * opts.length)];
+            } else if (item.type === 'checkbox') {
+                const opts = item.options.filter(o => o !== '기타');
+                let selected = [];
+                selected.push(opts[Math.floor(Math.random() * opts.length)]);
+                if (opts.length > 1 && Math.random() > 0.5) {
+                    let second = opts[Math.floor(Math.random() * opts.length)];
+                    if (selected[0] !== second) selected.push(second);
+                }
+                dummy[item.id] = selected;
+            }
+        });
+    });
+    
+    dummy['site_name'] = "유컴패니온 자동입력 테스트";
+    currentData = dummy;
+    renderForm();
+    
+    // Add ?test=true to URL without reloading to ensure test mode acts
+    const url = new URL(window.location);
+    url.searchParams.set('test', 'true');
+    window.history.pushState({}, '', url);
+    isTestMode = true;
+};

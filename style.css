@@ -109,7 +109,7 @@ body {
 .logo-container {
     display: inline-block;
     cursor: pointer;
-    margin-bottom: 24px;
+    margin-bottom: 4px;
     transition: var(--transition);
 }
 
@@ -118,7 +118,7 @@ body {
 }
 
 .logo {
-    height: 48px;
+    height: 14px;
     width: auto;
 }
 
@@ -209,7 +209,7 @@ textarea.form-control {
 /* Options Grid (Radio/Checkbox) */
 .options-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 12px;
 }
 
@@ -223,6 +223,10 @@ textarea.form-control {
     background: rgba(255,255,255,0.5);
     cursor: pointer;
     transition: var(--transition);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.85rem;
 }
 
 .option-card:hover {
@@ -252,6 +256,7 @@ textarea.form-control {
     align-items: center;
     justify-content: center;
     transition: var(--transition);
+    flex-shrink: 0;
 }
 
 .option-card input[type="radio"] ~ .option-indicator {
@@ -275,11 +280,15 @@ textarea.form-control {
     border-radius: 50%;
 }
 
-.option-card.active input[type="checkbox"] ~ .option-indicator::after {
-    content: '\\2713';
+.option-indicator i {
+    display: none;
+    font-size: 14px;
     color: #fff;
-    font-size: 12px;
-    font-weight: bold;
+}
+
+.option-card.active input[type="checkbox"] ~ .option-indicator i {
+    display: block;
+    animation: fadeIn 0.2s ease;
 }
 
 /* Direct Input */
@@ -388,12 +397,13 @@ textarea.form-control {
     border: none;
     font-size: 1.5rem;
     cursor: pointer;
-    color: var(--text-muted);
+    color: #333;
+    font-weight: 700;
     transition: var(--transition);
 }
 
 .modal-close:hover {
-    color: var(--text-main);
+    color: #000;
     transform: rotate(90deg);
 }
 
@@ -464,13 +474,6 @@ textarea.form-control {
 .read-only-view .option-card.active .option-indicator {
     display: none;
 }
-.read-only-view .option-card.active::before {
-    content: '\\2022'; /* bullet */
-    color: var(--primary);
-    margin-right: 8px;
-    font-size: 1.5rem;
-    line-height: 1;
-}
 
 /* Admin Mode Badge */
 .admin-badge {
@@ -498,4 +501,26 @@ textarea.form-control {
     border-radius: var(--radius-md);
     margin-bottom: 20px;
     animation: fadeIn 0.3s ease;
+}
+
+/* Empty State Indicators */
+.empty-indicator {
+    display: none;
+    width: 100%;
+    padding: 10px 12px;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    text-align: left;
+    background: rgba(0,0,0,0.03);
+    border-radius: var(--radius-sm);
+}
+.read-only-view .empty-indicator {
+    display: block;
+}
+.read-only-view .form-control:placeholder-shown {
+    border: none !important;
+    border-radius: var(--radius-sm);
+    background: rgba(0,0,0,0.03) !important;
+    padding-left: 12px;
 }
