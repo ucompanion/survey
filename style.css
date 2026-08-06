@@ -452,6 +452,23 @@ textarea.form-control {
     margin-bottom: 24px;
 }
 
+.admin-login-panel input[type="password"] {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(0,0,0,0.1);
+    background: rgba(255,255,255,0.7);
+    font-size: 1rem;
+    transition: var(--transition);
+    outline: none;
+    box-sizing: border-box;
+}
+
+.admin-login-panel input[type="password"]:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px var(--primary-light);
+}
+
 /* Read Only Mode styles */
 .read-only-view .form-control {
     background: rgba(0, 0, 0, 0.03);
@@ -592,4 +609,53 @@ textarea.form-control {
 .form-group.is-checking .direct-input-container {
     opacity: 0.3;
     pointer-events: none;
+}
+
+/* Responsive Design (Mobile / Low Res) */
+@media (max-width: 768px) {
+    .app-container {
+        padding: 20px 15px;
+    }
+    
+    h1 {
+        font-size: 1.6rem;
+    }
+    
+    .glass-panel, .form-section {
+        padding: 24px 20px;
+    }
+    
+    .options-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    
+    .form-actions > div {
+        flex-direction: column !important;
+    }
+    
+    .form-actions .btn {
+        width: 100%;
+        padding: 14px 20px;
+    }
+    
+    .option-card {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+    
+    /* Top action buttons in view mode */
+    #mode-banner + div {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+    #mode-banner + div .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .options-grid {
+        grid-template-columns: 1fr;
+    }
 }
