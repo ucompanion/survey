@@ -139,7 +139,11 @@ async function updateLoadButton() {
     if (!btn) return;
     
     try {
-        const res = await fetch('/api/load');
+        const res = await fetch('/api/load', {
+            headers: {
+                'bypass-tunnel-reminder': 'true'
+            }
+        });
         if (res.ok) {
             const data = await res.json();
             const siteName = data.site_name || '이름 없는 홈페이지';
@@ -378,7 +382,10 @@ window.submitForm = async function() {
     try {
         await fetch('/api/save', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'bypass-tunnel-reminder': 'true'
+            },
             body: JSON.stringify(currentData)
         });
     } catch (e) {
@@ -527,7 +534,11 @@ document.getElementById('btn-confirm-ok')?.addEventListener('click', () => {
 
 document.getElementById('btn-load-data').addEventListener('click', async () => {
     try {
-        const res = await fetch('/api/load');
+        const res = await fetch('/api/load', {
+            headers: {
+                'bypass-tunnel-reminder': 'true'
+            }
+        });
         if (res.ok) {
             currentData = await res.json();
             if (currentMode !== 'admin') {
@@ -583,7 +594,11 @@ function setupAdminTrigger() {
             adminLoginModal.classList.add('hidden');
             // Try to load saved data
             try {
-                const res = await fetch('/api/load');
+                const res = await fetch('/api/load', {
+                    headers: {
+                        'bypass-tunnel-reminder': 'true'
+                    }
+                });
                 if (res.ok) {
                     currentData = await res.json();
                 }
