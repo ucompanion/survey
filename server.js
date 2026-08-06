@@ -18,12 +18,14 @@ const MIME_TYPES = {
 const server = http.createServer((req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, bypass-tunnel-reminder');
 
     if (req.method === 'OPTIONS') {
         res.writeHead(204);
         return res.end();
     }
+    
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
 
     // Save JSON data
     if (req.method === 'POST' && req.url === '/api/save') {
@@ -61,6 +63,20 @@ const server = http.createServer((req, res) => {
             res.end(JSON.stringify({ success: false, message: 'Server error reading data.' }));
         }
         return;
+    }
+
+    // Delete JSON data
+    if (req.method === 'POST' && req.url === '/api/delete') {
+        try {
+            if (fs.existsSync(DATA_FILE)) {
+                fs.unlinkSync(DATA_FILE);
+            }
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            return res.end(JSON.stringify({ success: true }));
+        } catch (err) {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            return res.end(JSON.stringify({ error: err.message }));
+        }
     }
 
     // Serve static files

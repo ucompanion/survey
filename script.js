@@ -21,7 +21,7 @@ const formData = [
         category: "도메인",
         icon: "ph-globe",
         items: [
-            { id: "domain_owner", label: "도메인 소유자", type: "radio", options: ["회사", "대표자", "개인", "개발사", "대행사", "모름"] },
+            { id: "domain_owner", label: "도메인 소유자", type: "radio", options: ["회사", "대표자", "개인", "개발사", "대행사"] },
             { id: "domain_registrar", label: "도메인 등록업체", type: "radio", options: ["가비아", "카페24", "후이즈", "AWS Route53", "Cloudflare", "GoDaddy", "기타"], allowDirectInput: true },
             { id: "account_access", label: "계정 접근 가능", type: "radio", options: ["가능", "불가능", "확인필요"] },
             { id: "ssl_use", label: "SSL 사용", type: "radio", options: ["사용", "미사용"] }
@@ -161,11 +161,29 @@ async function updateLoadButton() {
 function renderForm() {
     let html = `<div id="mode-banner"></div>`;
     
-
+    let topActionHtml = '';
+    if (currentMode === 'view') {
+        topActionHtml = `
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+                <button type="button" class="btn btn-secondary" onclick="window.switchToEditMode()" style="padding: 10px 20px; font-size: 0.95rem;">
+                    <i class="ph ph-pencil-simple"></i> 정보 수정하기
+                </button>
+            </div>
+        `;
+    } else if (currentMode === 'edit') {
+        topActionHtml = `
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+                <button type="button" class="btn btn-primary" onclick="submitForm()" style="padding: 10px 20px; font-size: 0.95rem;">
+                    <i class="ph ph-check-circle"></i> 수정 완료
+                </button>
+            </div>
+        `;
+    }
     
+    html += topActionHtml;
     formData.forEach((section, sIndex) => {
         html += `
-            <div class="form-section" style="animation-delay: ${sIndex * 0.1}s">
+            <div class="form-section glass-panel" style="animation-delay: ${sIndex * 0.1}s">
                 <div class="section-title">
                     <i class="ph ${section.icon}"></i>
                     ${section.category}
@@ -179,10 +197,14 @@ function renderForm() {
             html += `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                     <label class="form-label" style="margin-bottom: 0;">${item.label}</label>
-                    <label class="checking-toggle ${currentMode === 'view' || currentMode === 'admin' ? 'disabled' : ''}">
-                        <input type="checkbox" class="tgl-checking" data-id="${item.id}" ${isChecking ? 'checked' : ''} ${currentMode === 'view' || currentMode === 'admin' ? 'disabled' : ''}>
+                    ${(currentMode === 'view' || currentMode === 'admin') ? 
+                        (isChecking ? `<span style="color: #ff9f43; font-weight: bold; font-size: 0.9rem; display: flex; align-items: center; gap: 4px;"><i class="ph ph-warning-circle"></i> 확인중</span>` : '') 
+                    : `
+                    <label class="checking-toggle">
+                        <input type="checkbox" class="tgl-checking" data-id="${item.id}" ${isChecking ? 'checked' : ''}>
                         <span>확인중</span>
                     </label>
+                    `}
                 </div>
             `;
 
@@ -261,23 +283,32 @@ function renderForm() {
     // Action buttons based on mode
     html += `<div class="form-actions">`;
     if (currentMode === 'create' || currentMode === 'edit') {
-        html += `<div style="display: flex; gap: 10px; width: 100%;">`;
-        html += `<button type="button" class="btn btn-secondary" onclick="window.fillDummyData()" style="flex: 1; background: #e0e0e0; color: #333; border: 1px solid #ccc; white-space: nowrap;">
+        html += `<div style="display: flex; gap: 10px; width: 100%; max-width: 800px;">`;
+        /*
+        actionHtml += `<button type="button" class="btn btn-secondary" onclick="window.fillDummyData()" style="flex: 1; background: #e0e0e0; color: #333; border: 1px solid #ccc; white-space: nowrap;">
                     <i class="ph ph-magic-wand"></i> 테스트용 (자동채우기)
                  </button>`;
-        html += `<button type="button" class="btn btn-primary" onclick="submitForm()" style="flex: 2;">
+        */
+        html += `<button type="button" class="btn btn-primary" onclick="submitForm()" style="flex: 1;">
                     <i class="ph ph-check-circle"></i> 
                     ${currentMode === 'edit' ? '수정 완료' : '제출하기'}
                  </button>`;
         html += `</div>`;
     } else if (currentMode === 'view') {
-        html += `<button type="button" class="btn btn-secondary" onclick="window.switchToEditMode()">
+        html += `<div style="display: flex; width: 100%; max-width: 800px;">`;
+        html += `<button type="button" class="btn btn-secondary" onclick="window.switchToEditMode()" style="flex: 1;">
                     <i class="ph ph-pencil-simple"></i> 정보 수정하기
                  </button>`;
+        html += `</div>`;
     } else if (currentMode === 'admin') {
-        html += `<button type="button" class="btn btn-primary" onclick="window.showHtmlMailModal()" style="background: #20c997; border-color: #20c997;">
+        html += `<div style="display: flex; gap: 10px; width: 100%; max-width: 800px;">`;
+        html += `<button type="button" class="btn btn-secondary" onclick="window.deleteData()" style="flex: 1; background: #ff4757; color: white; border: none;">
+                    <i class="ph ph-trash"></i> 데이터 삭제
+                 </button>`;
+        html += `<button type="button" class="btn btn-primary" onclick="window.showHtmlMailModal()" style="flex: 2; background: #20c997; border-color: #20c997;">
                     <i class="ph ph-envelope-simple"></i> 메일 템플릿 HTML 소스 복사
                  </button>`;
+        html += `</div>`;
     }
     html += `</div>`;
 
@@ -401,6 +432,27 @@ window.submitForm = async function() {
     document.getElementById('btn-view-text').textContent = `확인 (작성한 화면 보기)`;
     
     resultModal.classList.remove('hidden');
+};
+
+window.deleteData = async function() {
+    if (!confirm("정말 등록된 데이터를 모두 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.")) return;
+    try {
+        const res = await fetch('/api/delete', {
+            method: 'POST',
+            headers: { 'bypass-tunnel-reminder': 'true' }
+        });
+        if (res.ok) {
+            currentData = {};
+            currentMode = 'create';
+            renderForm();
+            updateLoadButton();
+            showAlert('삭제 완료', '데이터가 성공적으로 삭제되었습니다.', 'success');
+        } else {
+            showAlert('오류', '데이터 삭제에 실패했습니다.', 'error');
+        }
+    } catch(e) {
+        showAlert('오류', '서버 통신 중 오류가 발생했습니다.', 'error');
+    }
 };
 
 window.showHtmlMailModal = function() {
@@ -621,47 +673,19 @@ function setupAdminTrigger() {
 
 function updateModeUI() {
     const banner = document.getElementById('mode-banner');
-    if (currentMode === 'admin') {
+    if (!banner) return;
+    
+    // Always hide banner, users don't want ribbons
+    banner.style.display = 'none';
+    appContent.classList.remove('read-only-view');
+    
+    const badge = document.querySelector('.admin-badge');
+    if (badge) badge.remove();
+    document.querySelector('.app-container').style.overflow = 'visible';
+
+    // Only set read-only class if in view or admin mode
+    if (currentMode === 'admin' || currentMode === 'view') {
         appContent.classList.add('read-only-view');
-        banner.style.display = 'block';
-        banner.style.background = '#ff4757';
-        banner.innerHTML = '<i class="ph ph-lock-key"></i> 관리자 보기 모드 (읽기 전용)';
-        
-        // Add admin badge to main app
-        if (!document.querySelector('.admin-badge')) {
-            const badge = document.createElement('div');
-            badge.className = 'admin-badge';
-            badge.textContent = 'ADMIN';
-            badge.style.background = '#ff4757';
-            document.querySelector('.app-container').style.position = 'relative';
-            document.querySelector('.app-container').style.overflow = 'hidden';
-            document.querySelector('.app-container').appendChild(badge);
-        } else {
-            document.querySelector('.admin-badge').textContent = 'ADMIN';
-            document.querySelector('.admin-badge').style.background = '#ff4757';
-        }
-    } else if (currentMode === 'edit') {
-        appContent.classList.remove('read-only-view');
-        banner.style.display = 'block';
-        banner.style.background = '#ff9f43';
-        banner.innerHTML = '<i class="ph ph-pencil"></i> 수정 모드';
-        
-        const badge = document.querySelector('.admin-badge');
-        if (badge) badge.remove();
-        document.querySelector('.app-container').style.overflow = 'visible';
-    } else if (currentMode === 'view') {
-        appContent.classList.add('read-only-view');
-        banner.style.display = 'none';
-        const badge = document.querySelector('.admin-badge');
-        if (badge) badge.remove();
-        document.querySelector('.app-container').style.overflow = 'visible';
-    } else {
-        appContent.classList.remove('read-only-view');
-        banner.style.display = 'none';
-        
-        const badge = document.querySelector('.admin-badge');
-        if (badge) badge.remove();
-        document.querySelector('.app-container').style.overflow = 'visible';
     }
 }
 
