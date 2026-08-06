@@ -11,6 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -92,12 +93,23 @@
 
         <!-- HTML Mail Copy Modal -->
         <div id="html-mail-modal" class="modal-overlay hidden">
-            <div class="modal-content glass-panel" style="text-align: left;">
+            <div class="modal-content glass-panel" style="text-align: left; max-width: 800px; width: 90%;">
                 <button class="modal-close"><i class="ph ph-x"></i></button>
-                <h2 style="margin-top: 0; margin-bottom: 8px;">메일 발송용 HTML 소스</h2>
-                <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.9rem;">아래 HTML 코드를 복사하여 메일 템플릿에 사용할 수 있습니다.</p>
-                <textarea id="html-source-area" style="width: 100%; height: 300px; padding: 12px; font-family: monospace; font-size: 0.85rem; border: 1px solid rgba(0,0,0,0.1); border-radius: var(--radius-sm); resize: vertical; margin-bottom: 20px; background: rgba(255,255,255,0.5);"></textarea>
-                <button id="btn-copy-html" class="btn btn-primary w-full"><i class="ph ph-copy"></i> 복사하기</button>
+                <h2 style="margin-top: 0; margin-bottom: 8px;">결과 화면 및 HTML 소스</h2>
+                <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.9rem;">화면을 직접 드래그 복사(Cmd+C) 하거나 HTML 소스를 복사하여 메일에 붙여넣을 수 있습니다.</p>
+                
+                <div class="tabs" style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button class="btn btn-primary" id="tab-preview">화면 미리보기</button>
+                    <button class="btn btn-secondary" id="tab-source" style="background: transparent; border: 1px solid var(--primary); color: var(--primary);">HTML 소스</button>
+                </div>
+                
+                <div id="html-preview-area" style="width: 100%; height: 50vh; padding: 30px; border: 1px solid rgba(0,0,0,0.1); border-radius: var(--radius-sm); overflow-y: auto; background: #fff; margin-bottom: 20px;">
+                    <!-- Preview will be rendered here -->
+                </div>
+                
+                <textarea id="html-source-area" style="display: none; width: 100%; height: 50vh; padding: 12px; font-family: monospace; font-size: 0.85rem; border: 1px solid rgba(0,0,0,0.1); border-radius: var(--radius-sm); resize: vertical; margin-bottom: 20px; background: rgba(255,255,255,0.5);"></textarea>
+                
+                <button id="btn-copy-html" class="btn btn-primary w-full" style="display: none;"><i class="ph ph-copy"></i> HTML 복사하기</button>
             </div>
         </div>
     </main>

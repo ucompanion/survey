@@ -1,3 +1,6 @@
+// ==========================================
+// Survey App Initialization
+// ==========================================
 const formData = [
     {
         category: "기본정보",
@@ -8,7 +11,7 @@ const formData = [
             { id: "benchmarking", label: "벤치마킹", type: "textarea", placeholder: "참고할 만한 사이트 URL이나 특징을 적어주세요." },
             { id: "reason", label: "개편이유", type: "textarea", placeholder: "프로젝트를 진행하게 된 주된 배경을 적어주세요." },
             { id: "requirements", label: "정보구조 및 기능개선 요구사항", type: "textarea", placeholder: "핵심적으로 필요한 기능이나 메뉴 구조 변경 사항을 적어주세요." },
-            { id: "purpose", label: "홈페이지 목적", type: "radio", options: ["기업홍보", "쇼핑몰", "예약", "커뮤니티", "서비스", "랜딩페이지", "기타", "확인중"], allowDirectInput: true },
+            { id: "purpose", label: "홈페이지 목적", type: "text", placeholder: "기업홍보, 쇼핑몰, 예약, 커뮤니티, 서비스, 랜딩페이지 등 자유롭게 작성해주세요" },
             { id: "competitors", label: "경쟁업체", type: "text", placeholder: "동일한 서비스를 제공하는 경쟁업체명 또는 URL을 입력해 주세요." },
             { id: "brand_image", label: "선호하는 브랜드 이미지", type: "text", placeholder: "전문적이고 신뢰감 있는 이미지, 친근하고 편안한 이미지, 세련되고 고급스러운 이미지" },
             { id: "visual_style", label: "원하는 화면 구성이나 시각적 표현 방식", type: "text", placeholder: "사진 중심, 텍스트 중심, 심플한 구성, 정보가 풍부한 구성, 애니메이션·인터랙션 활용" }
@@ -18,88 +21,88 @@ const formData = [
         category: "도메인",
         icon: "ph-globe",
         items: [
-            { id: "domain_owner", label: "도메인 소유자", type: "radio", options: ["회사", "대표자", "개인", "개발사", "대행사", "모름", "확인중"] },
-            { id: "domain_registrar", label: "도메인 등록업체", type: "radio", options: ["가비아", "카페24", "후이즈", "AWS Route53", "Cloudflare", "GoDaddy", "기타", "확인중"], allowDirectInput: true },
-            { id: "account_access", label: "계정 접근 가능", type: "radio", options: ["가능", "불가능", "확인필요", "확인중"] },
-            { id: "ssl_use", label: "SSL 사용", type: "radio", options: ["사용", "미사용", "확인중"] }
+            { id: "domain_owner", label: "도메인 소유자", type: "radio", options: ["회사", "대표자", "개인", "개발사", "대행사", "모름"] },
+            { id: "domain_registrar", label: "도메인 등록업체", type: "radio", options: ["가비아", "카페24", "후이즈", "AWS Route53", "Cloudflare", "GoDaddy", "기타"], allowDirectInput: true },
+            { id: "account_access", label: "계정 접근 가능", type: "radio", options: ["가능", "불가능", "확인필요"] },
+            { id: "ssl_use", label: "SSL 사용", type: "radio", options: ["사용", "미사용"] }
         ]
     },
     {
         category: "서버",
         icon: "ph-hard-drives",
         items: [
-            { id: "server_type", label: "서버 운영방식", type: "radio", options: ["클라우드", "IDC", "웹호스팅", "서버호스팅", "사내서버", "확인중"] },
-            { id: "cloud_type", label: "클라우드 종류", type: "radio", options: ["AWS", "Azure", "GCP", "NCP", "KT Cloud", "NHN Cloud", "해당없음", "확인중"] },
-            { id: "os", label: "운영체제", type: "radio", options: ["Ubuntu", "CentOS", "RockyLinux", "Debian", "Windows Server", "기타", "확인중"], allowDirectInput: true },
-            { id: "web_server", label: "웹서버", type: "radio", options: ["Apache", "Nginx", "IIS", "LiteSpeed", "기타", "확인중"], allowDirectInput: true },
-            { id: "was", label: "WAS", type: "radio", options: ["Tomcat", "JBoss", "WildFly", "Jetty", "Node.js", "PHP-FPM", "없음", "확인중"] }
+            { id: "server_type", label: "서버 운영방식", type: "radio", options: ["클라우드", "IDC", "웹호스팅", "서버호스팅", "사내서버"] },
+            { id: "cloud_type", label: "클라우드 종류", type: "radio", options: ["AWS", "Azure", "GCP", "NCP", "KT Cloud", "NHN Cloud", "해당없음"] },
+            { id: "os", label: "운영체제", type: "radio", options: ["Ubuntu", "CentOS", "RockyLinux", "Debian", "Windows Server", "기타"], allowDirectInput: true },
+            { id: "web_server", label: "웹서버", type: "radio", options: ["Apache", "Nginx", "IIS", "LiteSpeed", "기타"], allowDirectInput: true },
+            { id: "was", label: "WAS", type: "radio", options: ["Tomcat", "JBoss", "WildFly", "Jetty", "Node.js", "PHP-FPM", "없음"] }
         ]
     },
     {
         category: "개발환경",
         icon: "ph-code",
         items: [
-            { id: "language", label: "개발언어", type: "checkbox", options: ["PHP", "Java", "ASP.NET", "Python", "Node.js", "Ruby", "Go", "기타", "확인중"], allowDirectInput: true },
-            { id: "framework", label: "프레임워크", type: "checkbox", options: ["Spring", "Spring Boot", "Laravel", "Django", "Express", "NestJS", "CodeIgniter", "없음", "확인중"] },
-            { id: "frontend", label: "프론트엔드", type: "checkbox", options: ["HTML+jQuery", "React", "Vue", "Angular", "Next.js", "Nuxt.js", "Svelte", "확인중"] }
+            { id: "language", label: "개발언어", type: "checkbox", options: ["PHP", "Java", "ASP.NET", "Python", "Node.js", "Ruby", "Go", "기타"], allowDirectInput: true },
+            { id: "framework", label: "프레임워크", type: "checkbox", options: ["Spring", "Spring Boot", "Laravel", "Django", "Express", "NestJS", "CodeIgniter", "없음"] },
+            { id: "frontend", label: "프론트엔드", type: "checkbox", options: ["HTML+jQuery", "React", "Vue", "Angular", "Next.js", "Nuxt.js", "Svelte"] }
         ]
     },
     {
         category: "DB",
         icon: "ph-database",
         items: [
-            { id: "db_type", label: "DB 종류", type: "checkbox", options: ["MySQL", "MariaDB", "PostgreSQL", "Oracle", "MSSQL", "SQLite", "확인중"] },
-            { id: "backup", label: "백업", type: "radio", options: ["자동", "수동", "없음", "확인중"] }
+            { id: "db_type", label: "DB 종류", type: "checkbox", options: ["MySQL", "MariaDB", "PostgreSQL", "Oracle", "MSSQL", "SQLite"] },
+            { id: "backup", label: "백업", type: "radio", options: ["자동", "수동", "없음"] }
         ]
     },
     {
         category: "CMS",
         icon: "ph-layout",
         items: [
-            { id: "cms_use", label: "CMS 사용", type: "radio", options: ["사용", "미사용", "확인중"] },
-            { id: "cms_type", label: "CMS 종류", type: "radio", options: ["워드프레스", "그누보드", "영카트", "XE", "Rhymix", "Drupal", "Joomla", "기타", "확인중"], allowDirectInput: true }
+            { id: "cms_use", label: "CMS 사용", type: "radio", options: ["사용", "미사용"] },
+            { id: "cms_type", label: "CMS 종류", type: "radio", options: ["워드프레스", "그누보드", "영카트", "XE", "Rhymix", "Drupal", "Joomla", "기타"], allowDirectInput: true }
         ]
     },
     {
         category: "API",
         icon: "ph-plugs",
         items: [
-            { id: "api_use", label: "API 사용", type: "radio", options: ["있음", "없음", "확인중"] },
-            { id: "api_details", label: "API 상세 내용 (사용 시)", type: "checkbox", options: ["PG", "소셜로그인", "지도", "SMS", "알림톡", "Firebase", "ERP", "기타", "확인중"], allowDirectInput: true }
+            { id: "api_use", label: "API 사용", type: "radio", options: ["있음", "없음"] },
+            { id: "api_details", label: "API 상세 내용 (사용 시)", type: "checkbox", options: ["PG", "소셜로그인", "지도", "SMS", "알림톡", "Firebase", "ERP", "기타"], allowDirectInput: true }
         ]
     },
     {
         category: "운영",
         icon: "ph-terminal-window",
         items: [
-            { id: "git", label: "Git", type: "radio", options: ["GitHub", "GitLab", "Bitbucket", "Azure DevOps", "없음", "확인중"] },
-            { id: "cicd", label: "CI/CD", type: "radio", options: ["GitHub Actions", "Jenkins", "GitLab CI", "없음", "확인중"] }
+            { id: "git", label: "Git", type: "radio", options: ["GitHub", "GitLab", "Bitbucket", "Azure DevOps", "없음"] },
+            { id: "cicd", label: "CI/CD", type: "radio", options: ["GitHub Actions", "Jenkins", "GitLab CI", "없음"] }
         ]
     },
     {
         category: "메일",
         icon: "ph-envelope",
         items: [
-            { id: "mail_service", label: "메일 서비스", type: "radio", options: ["Google Workspace", "M365", "카페24", "네이버웍스", "자체메일", "기타", "확인중"], allowDirectInput: true }
+            { id: "mail_service", label: "메일 서비스", type: "radio", options: ["Google Workspace", "M365", "카페24", "네이버웍스", "자체메일", "기타"], allowDirectInput: true }
         ]
     },
     {
         category: "유지보수",
         icon: "ph-wrench",
         items: [
-            { id: "maintenance", label: "유지보수 업체", type: "radio", options: ["있음", "없음", "확인중"] },
-            { id: "source_code", label: "소스코드 보유", type: "radio", options: ["회사", "개발사", "없음", "확인중"] },
-            { id: "doc_design", label: "설계서", type: "radio", options: ["있음", "없음", "확인중"] },
-            { id: "doc_erd", label: "DB ERD", type: "radio", options: ["있음", "없음", "확인중"] },
-            { id: "doc_api", label: "API 문서", type: "radio", options: ["있음", "없음", "확인중"] }
+            { id: "maintenance", label: "유지보수 업체", type: "radio", options: ["있음", "없음"] },
+            { id: "source_code", label: "소스코드 보유", type: "radio", options: ["회사", "개발사", "없음"] },
+            { id: "doc_design", label: "설계서", type: "radio", options: ["있음", "없음"] },
+            { id: "doc_erd", label: "DB ERD", type: "radio", options: ["있음", "없음"] },
+            { id: "doc_api", label: "API 문서", type: "radio", options: ["있음", "없음"] }
         ]
     },
     {
         category: "CRM 연동",
         icon: "ph-users-three",
         items: [
-            { id: "crm_company", label: "CRM 업체", type: "radio", options: ["있음", "없음", "확인중"] },
-            { id: "crm_api", label: "CRM API 제공여부", type: "radio", options: ["제공", "미제공", "확인중"] }
+            { id: "crm_company", label: "CRM 업체", type: "radio", options: ["있음", "없음"] },
+            { id: "crm_api", label: "CRM API 제공여부", type: "radio", options: ["제공", "미제공"] }
         ]
     },
     {
@@ -131,22 +134,22 @@ document.addEventListener('DOMContentLoaded', () => {
     setupAdminTrigger();
 });
 
-function updateLoadButton() {
+async function updateLoadButton() {
     const btn = document.getElementById('btn-load-data');
     if (!btn) return;
     
-    const saved = localStorage.getItem('ucomp_survey_data');
-    if (saved) {
-        try {
-            const data = JSON.parse(saved);
+    try {
+        const res = await fetch('/api/load');
+        if (res.ok) {
+            const data = await res.json();
             const siteName = data.site_name || '이름 없는 홈페이지';
             const nameSpan = btn.querySelector('#load-site-name');
             if (nameSpan) nameSpan.textContent = siteName;
             btn.style.display = 'inline-flex';
-        } catch(e) {
+        } else {
             btn.style.display = 'none';
         }
-    } else {
+    } catch(e) {
         btn.style.display = 'none';
     }
 }
@@ -154,11 +157,7 @@ function updateLoadButton() {
 function renderForm() {
     let html = `<div id="mode-banner"></div>`;
     
-    if (currentMode === 'create' || currentMode === 'edit') {
-        if (isTestMode) {
-            html += `<div style="background: #ff9f43; color: white; text-align: center; padding: 10px; font-weight: bold; border-radius: var(--radius-md); margin-bottom: 20px;">🧪 테스트 작성 모드 (제출 시 테스트 데이터로 분류됩니다)</div>`;
-        }
-    }
+
     
     formData.forEach((section, sIndex) => {
         html += `
@@ -170,8 +169,18 @@ function renderForm() {
         `;
 
         section.items.forEach(item => {
-            html += `<div class="form-group" id="group_${item.id}">`;
-            html += `<label class="form-label">${item.label}</label>`;
+            const isChecking = currentData[`${item.id}_checking`] === true;
+            html += `<div class="form-group ${isChecking ? 'is-checking' : ''}" id="group_${item.id}">`;
+            
+            html += `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <label class="form-label" style="margin-bottom: 0;">${item.label}</label>
+                    <label class="checking-toggle ${currentMode === 'view' || currentMode === 'admin' ? 'disabled' : ''}">
+                        <input type="checkbox" class="tgl-checking" data-id="${item.id}" ${isChecking ? 'checked' : ''} ${currentMode === 'view' || currentMode === 'admin' ? 'disabled' : ''}>
+                        <span>확인중</span>
+                    </label>
+                </div>
+            `;
 
             const val = currentData[item.id] || (item.type === 'checkbox' ? [] : '');
 
@@ -310,12 +319,21 @@ window.handleOptionChange = function(groupId, type, element, allowDirectInput) {
 };
 
 // Gather form data and process it
-window.submitForm = function() {
+window.submitForm = async function() {
     const data = {};
     let isValid = true;
 
     formData.forEach(section => {
         section.items.forEach(item => {
+            const checkingToggle = document.querySelector(`.tgl-checking[data-id="${item.id}"]`);
+            if (checkingToggle && checkingToggle.checked) {
+                data[`${item.id}_checking`] = true;
+                data[item.id] = "확인중";
+                return;
+            } else {
+                data[`${item.id}_checking`] = false;
+            }
+
             if (item.type === 'text' || item.type === 'url' || item.type === 'textarea') {
                 data[item.id] = document.getElementById(item.id).value.trim();
             } else if (item.type === 'radio') {
@@ -356,8 +374,17 @@ window.submitForm = function() {
         currentData._is_test = true;
     }
     
-    // Save to localStorage
-    localStorage.setItem('ucomp_survey_data', JSON.stringify(currentData));
+    // Save to API
+    try {
+        await fetch('/api/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(currentData)
+        });
+    } catch (e) {
+        console.error('Save failed:', e);
+    }
+    
     updateLoadButton();
     
     // Show Modal
@@ -396,14 +423,47 @@ window.showHtmlMailModal = function() {
     mailHtml += `</div>`;
     
     document.getElementById('html-source-area').value = mailHtml;
+    document.getElementById('html-preview-area').innerHTML = mailHtml;
+    
+    // Default to preview tab
+    document.getElementById('tab-preview').style.background = 'var(--primary)';
+    document.getElementById('tab-preview').style.color = '#fff';
+    document.getElementById('tab-source').style.background = 'transparent';
+    document.getElementById('tab-source').style.color = 'var(--primary)';
+    document.getElementById('html-preview-area').style.display = 'block';
+    document.getElementById('html-source-area').style.display = 'none';
+    document.getElementById('btn-copy-html').style.display = 'none';
+
     document.getElementById('html-mail-modal').classList.remove('hidden');
 };
 
 document.getElementById('btn-copy-html').addEventListener('click', () => {
     const textArea = document.getElementById('html-source-area');
+    textArea.style.display = 'block'; // Make sure it's visible to copy, though execCommand works anyway
     textArea.select();
     document.execCommand('copy');
     showAlert('복사 완료', 'HTML 소스가 클립보드에 복사되었습니다.<br>메일 작성 시 HTML 모드에서 붙여넣기 해주세요.', 'success');
+});
+
+// Tab Switching Logic
+document.getElementById('tab-preview')?.addEventListener('click', () => {
+    document.getElementById('tab-preview').style.background = 'var(--primary)';
+    document.getElementById('tab-preview').style.color = '#fff';
+    document.getElementById('tab-source').style.background = 'transparent';
+    document.getElementById('tab-source').style.color = 'var(--primary)';
+    document.getElementById('html-preview-area').style.display = 'block';
+    document.getElementById('html-source-area').style.display = 'none';
+    document.getElementById('btn-copy-html').style.display = 'none';
+});
+
+document.getElementById('tab-source')?.addEventListener('click', () => {
+    document.getElementById('tab-source').style.background = 'var(--primary)';
+    document.getElementById('tab-source').style.color = '#fff';
+    document.getElementById('tab-preview').style.background = 'transparent';
+    document.getElementById('tab-preview').style.color = 'var(--primary)';
+    document.getElementById('html-source-area').style.display = 'block';
+    document.getElementById('html-preview-area').style.display = 'none';
+    document.getElementById('btn-copy-html').style.display = 'block';
 });
 
 // Modal Actions
@@ -436,6 +496,20 @@ document.querySelectorAll('.modal-close').forEach(btn => {
     });
 });
 
+document.addEventListener('change', (e) => {
+    if (e.target.classList.contains('tgl-checking')) {
+        const id = e.target.dataset.id;
+        const group = document.getElementById(`group_${id}`);
+        if (group) {
+            if (e.target.checked) {
+                group.classList.add('is-checking');
+            } else {
+                group.classList.remove('is-checking');
+            }
+        }
+    }
+});
+
 document.getElementById('btn-view').addEventListener('click', () => {
     resultModal.classList.add('hidden');
     currentMode = 'view';
@@ -451,21 +525,21 @@ document.getElementById('btn-confirm-ok')?.addEventListener('click', () => {
     window.location.href = window.location.pathname;
 });
 
-document.getElementById('btn-load-data').addEventListener('click', () => {
-    const saved = localStorage.getItem('ucomp_survey_data');
-    if (saved) {
-        try {
-            currentData = JSON.parse(saved);
+document.getElementById('btn-load-data').addEventListener('click', async () => {
+    try {
+        const res = await fetch('/api/load');
+        if (res.ok) {
+            currentData = await res.json();
             if (currentMode !== 'admin') {
                 currentMode = 'view';
             }
             renderForm();
             showAlert('불러오기 완료', '저장된 홈페이지 데이터를 성공적으로 불러왔습니다.', 'success');
-        } catch (e) {
-            showAlert('오류 발생', '데이터를 불러오는 중 오류가 발생했습니다.', 'error');
+        } else {
+            showAlert('안내', '등록된(저장된) 홈페이지 정보가 없습니다.', 'info');
         }
-    } else {
-        showAlert('안내', '등록된(저장된) 홈페이지 정보가 없습니다.', 'info');
+    } catch (e) {
+        showAlert('오류 발생', '데이터를 불러오는 중 오류가 발생했습니다.', 'error');
     }
 });
 
@@ -503,17 +577,17 @@ function setupAdminTrigger() {
         }
     });
 
-    document.getElementById('btn-admin-login').addEventListener('click', () => {
+    document.getElementById('btn-admin-login').addEventListener('click', async () => {
         const pw = document.getElementById('admin-password').value;
         if (pw === 'admin') {
             adminLoginModal.classList.add('hidden');
             // Try to load saved data
-            const saved = localStorage.getItem('ucomp_survey_data');
-            if (saved) {
-                try {
-                    currentData = JSON.parse(saved);
-                } catch (e) {}
-            }
+            try {
+                const res = await fetch('/api/load');
+                if (res.ok) {
+                    currentData = await res.json();
+                }
+            } catch (e) {}
             
             if (Object.keys(currentData).length === 0) {
                 showAlert('안내', '등록된(저장된) 정보가 없습니다.', 'info');
@@ -577,14 +651,17 @@ function updateModeUI() {
 }
 
 window.fillDummyData = function() {
-    let dummy = {};
+    const data = {};
     formData.forEach(section => {
         section.items.forEach(item => {
-            if (item.type === 'text') {
-                dummy[item.id] = `테스트 ${item.label} 데이터`;
+            // Uncheck "확인중" for test data
+            data[`${item.id}_checking`] = false;
+            
+            if (item.type === 'text' || item.type === 'url' || item.type === 'textarea') {
+                data[item.id] = `테스트 ${item.label} 데이터`;
             } else if (item.type === 'radio') {
                 const opts = item.options.filter(o => o !== '기타');
-                dummy[item.id] = opts[Math.floor(Math.random() * opts.length)];
+                data[item.id] = opts[Math.floor(Math.random() * opts.length)];
             } else if (item.type === 'checkbox') {
                 const opts = item.options.filter(o => o !== '기타');
                 let selected = [];
@@ -593,13 +670,13 @@ window.fillDummyData = function() {
                     let second = opts[Math.floor(Math.random() * opts.length)];
                     if (selected[0] !== second) selected.push(second);
                 }
-                dummy[item.id] = selected;
+                data[item.id] = selected;
             }
         });
     });
     
-    dummy['site_name'] = "유컴패니온 자동입력 테스트";
-    currentData = dummy;
+    data['site_name'] = "유컴패니온 자동입력 테스트";
+    currentData = data;
     renderForm();
     
     // Add ?test=true to URL without reloading to ensure test mode acts
