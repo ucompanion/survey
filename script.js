@@ -56,6 +56,48 @@ const formData = [
             { id: "cms_use", label: "CMS 사용", type: "radio", options: ["사용", "미사용"] },
             { id: "cms_type", label: "CMS 종류", type: "radio", options: ["워드프레스", "그누보드", "영카트", "XE", "Rhymix", "Drupal", "Joomla", "기타"], allowDirectInput: true }
         ]
+    },
+    {
+        category: "API",
+        icon: "ph-plugs",
+        items: [
+            { id: "api_use", label: "API 사용", type: "radio", options: ["있음", "없음"] },
+            { id: "api_details", label: "API 상세 내용 (사용 시)", type: "checkbox", options: ["PG", "소셜로그인", "지도", "SMS", "알림톡", "Firebase", "ERP", "기타"], allowDirectInput: true }
+        ]
+    },
+    {
+        category: "운영",
+        icon: "ph-terminal-window",
+        items: [
+            { id: "git", label: "Git", type: "radio", options: ["GitHub", "GitLab", "Bitbucket", "Azure DevOps", "없음"] },
+            { id: "cicd", label: "CI/CD", type: "radio", options: ["GitHub Actions", "Jenkins", "GitLab CI", "없음"] }
+        ]
+    },
+    {
+        category: "메일",
+        icon: "ph-envelope",
+        items: [
+            { id: "mail_service", label: "메일 서비스", type: "radio", options: ["Google Workspace", "M365", "카페24", "네이버웍스", "자체메일", "기타"], allowDirectInput: true }
+        ]
+    },
+    {
+        category: "유지보수",
+        icon: "ph-wrench",
+        items: [
+            { id: "maintenance", label: "유지보수 업체", type: "radio", options: ["있음", "없음"] },
+            { id: "source_code", label: "소스코드 보유", type: "radio", options: ["회사", "개발사", "없음"] },
+            { id: "doc_design", label: "설계서", type: "radio", options: ["있음", "없음"] },
+            { id: "doc_erd", label: "DB ERD", type: "radio", options: ["있음", "없음"] },
+            { id: "doc_api", label: "API 문서", type: "radio", options: ["있음", "없음"] }
+        ]
+    },
+    {
+        category: "CRM 연동",
+        icon: "ph-users-three",
+        items: [
+            { id: "crm_company", label: "CRM 업체", type: "radio", options: ["있음", "없음"] },
+            { id: "crm_api", label: "CRM API 제공여부", type: "radio", options: ["제공", "미제공"] }
+        ]
     }
 ];
 
