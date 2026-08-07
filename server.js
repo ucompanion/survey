@@ -48,7 +48,7 @@ const server = http.createServer((req, res) => {
     }
 
     // Load JSON data
-    if (req.method === 'GET' && req.url === '/api/load') {
+    if (req.method === 'GET' && req.url.startsWith('/api/load')) {
         try {
             if (fs.existsSync(DATA_FILE)) {
                 const data = fs.readFileSync(DATA_FILE, 'utf8');

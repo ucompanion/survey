@@ -122,6 +122,9 @@ let adminClickTimer = null;
 const urlParams = new URLSearchParams(window.location.search);
 const isTestMode = urlParams.get('test') === 'true';
 
+// v2.0 다중 프로젝트 구조 준비 (URL에서 pid 추출, 없으면 null)
+let projectId = urlParams.get('pid');
+
 // DOM Elements
 const appContent = document.getElementById('app-content');
 const resultModal = document.getElementById('result-modal');
@@ -129,17 +132,66 @@ const adminLoginModal = document.getElementById('admin-login-modal');
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    updateLoadButton();
-    renderForm();
+    // 관리자 로고 5번 클릭 이벤트는 항상 활성화
     setupAdminTrigger();
+    
+    if (!projectId) {
+        // pid가 없으면 새 프로젝트 생성(ID 입력) 화면 렌더링
+        renderLandingPage();
+    } else {
+        // pid가 있으면 기존 로직대로 설문 폼 렌더링
+        updateLoadButton();
+        renderForm();
+    }
 });
+
+function renderLandingPage() {
+    currentMode = 'landing';
+    const html = `
+        <div class="form-section glass-panel" style="text-align: center; padding: 60px 30px; animation: slideUp 0.5s ease forwards; max-width: 600px; margin: 40px auto;">
+            <div style="font-size: 3.5rem; color: var(--primary); margin-bottom: 20px;"><i class="ph ph-rocket-launch"></i></div>
+            <h2 style="font-size: 1.8rem; margin-bottom: 15px; color: #2d3436;">프로젝트 질문지 시작</h2>
+            <p style="color: var(--text-muted); margin-bottom: 40px; font-size: 1rem; line-height: 1.6; word-break: keep-all;">
+                작업하실 <strong>프로젝트의 고유 ID(영문/숫자)</strong>를 입력해 주세요.<br>
+                입력하신 ID로 전용 접속 링크가 생성됩니다.
+            </p>
+            <div style="max-width: 400px; margin: 0 auto; display: flex; flex-direction: column; gap: 15px;">
+                <input type="text" id="landing-pid-input" class="form-control" placeholder="예: apple, kakao_2024" style="text-align: center; font-size: 1.1rem; padding: 15px;" onkeypress="if(event.key === 'Enter') window.startNewProject()">
+                <button class="btn btn-primary" onclick="window.startNewProject()" style="padding: 15px; font-size: 1.1rem;">
+                    시작하기 <i class="ph ph-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    `;
+    appContent.innerHTML = html;
+    
+    // 헤더의 로드 버튼 숨김 처리
+    const loadBtn = document.getElementById('btn-load-data');
+    if(loadBtn) loadBtn.style.display = 'none';
+}
+
+window.startNewProject = function() {
+    const input = document.getElementById('landing-pid-input').value.trim();
+    if (!input) {
+        showAlert('알림', '프로젝트 ID를 입력해주세요.', 'info');
+        return;
+    }
+    // 영문, 숫자, 언더바만 허용 (보안 및 파일명 안정성)
+    if (!/^[a-zA-Z0-9_]+$/.test(input)) {
+        showAlert('알림', '프로젝트 ID는 영문, 숫자, 밑줄(_)만 사용 가능합니다.', 'warning');
+        return;
+    }
+    
+    // 해당 ID의 URL로 리다이렉트
+    window.location.href = '?pid=' + input;
+};
 
 async function updateLoadButton() {
     const btn = document.getElementById('btn-load-data');
     if (!btn) return;
     
     try {
-        const res = await fetch('/api/load', {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/api/load?projectId=${projectId}`, {
             headers: {
                 'bypass-tunnel-reminder': 'true'
             }
@@ -305,8 +357,11 @@ function renderForm() {
         html += `<button type="button" class="btn btn-secondary" onclick="window.deleteData()" style="flex: 1; background: #ff4757; color: white; border: none;">
                     <i class="ph ph-trash"></i> 데이터 삭제
                  </button>`;
-        html += `<button type="button" class="btn btn-primary" onclick="window.showHtmlMailModal()" style="flex: 2; background: #20c997; border-color: #20c997;">
-                    <i class="ph ph-envelope-simple"></i> 메일 템플릿 HTML 소스 복사
+        html += `<button type="button" class="btn btn-primary" onclick="window.showHtmlMailModal()" style="flex: 1; background: #20c997; border-color: #20c997;">
+                    <i class="ph ph-envelope-simple"></i> 템플릿 복사
+                 </button>`;
+        html += `<button type="button" class="btn btn-primary" onclick="window.showAdminDashboard()" style="flex: 1; background: #3b82f6; border-color: #3b82f6;">
+                    <i class="ph ph-list-dashes"></i> 전체 목록 조회
                  </button>`;
         html += `</div>`;
     }
@@ -409,9 +464,15 @@ window.submitForm = async function() {
         currentData._is_test = true;
     }
     
+    // v2.0 다중 프로젝트 구조 준비: 데이터에 projectId 포함
+    currentData.projectId = projectId;
+    
+    // 백엔드 다중화 개편 전까지, 모든 제출 내역을 로컬 스토리지에 무조건 백업 (관리자 목록 조회용)
+    localStorage.setItem(`survey_backup_${projectId}`, JSON.stringify(currentData));
+    
     // Save to API
     try {
-        await fetch('/api/save', {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/api/save`, {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
@@ -419,27 +480,41 @@ window.submitForm = async function() {
             },
             body: JSON.stringify(currentData)
         });
+        
+        if (!res.ok) throw new Error('Server returned an error');
+
+        updateLoadButton();
+        
+        // Show Success Modal
+        const siteName = currentData.site_name || '프로젝트';
+        document.getElementById('result-title').innerHTML = `<strong>${siteName}</strong> 제출 완료`;
+        document.getElementById('result-desc').innerHTML = isTestMode ? "테스트 정보가 성공적으로 임시 저장되었습니다. (테스트)" : "입력하신 정보가 성공적으로 제출되었습니다.";
+        document.getElementById('btn-view-text').textContent = `확인 (작성한 화면 보기)`;
+        
+        resultModal.classList.remove('hidden');
+        
     } catch (e) {
         console.error('Save failed:', e);
+        
+        // 에러 알림창 띄우기
+        if (typeof showAlert === 'function') {
+            showAlert('서버 연결 실패', '서버와 통신할 수 없어 데이터가 브라우저에 임시 저장되었습니다.<br>나중에 다시 시도해 주세요.', 'error');
+        } else {
+            alert('서버 연결에 실패하여 데이터가 브라우저에 임시 저장되었습니다. 나중에 다시 시도해 주세요.');
+        }
     }
-    
-    updateLoadButton();
-    
-    // Show Modal
-    const siteName = currentData.site_name || '프로젝트';
-    document.getElementById('result-title').innerHTML = `<strong>${siteName}</strong> 제출 완료`;
-    document.getElementById('result-desc').innerHTML = isTestMode ? "테스트 정보가 성공적으로 임시 저장되었습니다. (테스트)" : "입력하신 정보가 성공적으로 제출되었습니다.";
-    document.getElementById('btn-view-text').textContent = `확인 (작성한 화면 보기)`;
-    
-    resultModal.classList.remove('hidden');
 };
 
 window.deleteData = async function() {
     if (!confirm("정말 등록된 데이터를 모두 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.")) return;
     try {
-        const res = await fetch('/api/delete', {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/api/delete`, {
             method: 'POST',
-            headers: { 'bypass-tunnel-reminder': 'true' }
+            headers: { 
+                'Content-Type': 'application/json',
+                'bypass-tunnel-reminder': 'true' 
+            },
+            body: JSON.stringify({ projectId: projectId })
         });
         if (res.ok) {
             currentData = {};
@@ -586,7 +661,7 @@ document.getElementById('btn-confirm-ok')?.addEventListener('click', () => {
 
 document.getElementById('btn-load-data').addEventListener('click', async () => {
     try {
-        const res = await fetch('/api/load', {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/api/load`, {
             headers: {
                 'bypass-tunnel-reminder': 'true'
             }
@@ -646,7 +721,7 @@ function setupAdminTrigger() {
             adminLoginModal.classList.add('hidden');
             // Try to load saved data
             try {
-                const res = await fetch('/api/load', {
+                const res = await fetch(`${CONFIG.API_BASE_URL}/api/load`, {
                     headers: {
                         'bypass-tunnel-reminder': 'true'
                     }
@@ -657,14 +732,13 @@ function setupAdminTrigger() {
             } catch (e) {}
             
             if (Object.keys(currentData).length === 0) {
-                showAlert('안내', '등록된(저장된) 정보가 없습니다.', 'info');
-                return;
+                currentMode = 'admin_list';
+                renderAdminDashboard();
+            } else {
+                currentMode = 'admin_list';
+                renderAdminDashboard();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
-            
-            currentMode = 'admin';
-            renderForm();
-            
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
             showAlert('오류', '비밀번호가 일치하지 않습니다.', 'error');
         }
@@ -683,8 +757,8 @@ function updateModeUI() {
     if (badge) badge.remove();
     document.querySelector('.app-container').style.overflow = 'visible';
 
-    // Only set read-only class if in view or admin mode
-    if (currentMode === 'admin' || currentMode === 'view') {
+    // Only set read-only class if in view mode
+    if (currentMode === 'view') {
         appContent.classList.add('read-only-view');
     }
 }
@@ -723,4 +797,104 @@ window.fillDummyData = function() {
     url.searchParams.set('test', 'true');
     window.history.pushState({}, '', url);
     isTestMode = true;
+};
+
+window.renderAdminDashboard = function() {
+    let html = `
+        <div class="form-section glass-panel" style="animation: slideUp 0.5s ease forwards;">
+            <div class="section-title" style="font-size: 1.5rem; margin-bottom: 5px;">
+                <i class="ph ph-list-dashes"></i> 프로젝트 대시보드
+            </div>
+            <p style="color: var(--text-muted); margin-bottom: 30px; font-size: 0.95rem;">
+                현재 백엔드 다중화 개편 전이므로, 사용자 브라우저에 임시 저장된 프로젝트 목록만 표시됩니다.
+            </p>
+            <div style="display:flex; flex-direction:column; gap: 15px;">
+    `;
+    
+    const backupKeys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('survey_backup_')) {
+            backupKeys.push(key);
+        }
+    }
+    
+    // 서버에서 불러온 데이터가 있다면 (온라인)
+    if (Object.keys(currentData).length > 0) {
+        const siteName = currentData.site_name || '이름 없는 프로젝트';
+        html += `
+            <div style="margin-bottom: 20px;">
+                <h4 style="margin-bottom: 10px; color: var(--primary); font-size: 1rem;"><i class="ph ph-hard-drives"></i> 서버에 저장된 데이터 (단일)</h4>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px; background: rgba(95, 61, 196, 0.05); border-radius: 12px; border: 1px solid rgba(95, 61, 196, 0.2);">
+                    <div>
+                        <div style="font-weight: 700; font-size: 1.15rem; margin-bottom: 8px; color: #2d3436;">${siteName}</div>
+                        <div style="font-size: 0.85rem; color: #636e72;">현재 백엔드(survey_data.json)에 저장되어 있는 원본 데이터입니다.</div>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-primary" onclick="showHtmlMailModal()" style="background: #20c997; border-color: #20c997; padding: 8px 12px; font-size: 0.85rem;" title="메일 템플릿 복사"><i class="ph ph-envelope-simple"></i> 복사</button>
+                        <button class="btn btn-primary" onclick="currentMode='view'; renderForm();" style="padding: 8px 16px; font-size: 0.85rem; border-radius: 20px;"><i class="ph ph-eye"></i> 원본 보기</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    } else {
+        // 서버 데이터가 없을 때만 로컬 백업 데이터 표시 (오프라인/미저장 상태)
+        html += `<h4 style="margin-bottom: 10px; color: #636e72; font-size: 1rem; margin-top: 10px;"><i class="ph ph-floppy-disk"></i> 브라우저 임시 저장(백업) 데이터</h4>`;
+        
+        if (backupKeys.length === 0) {
+            html += `<div style="text-align: center; padding: 50px; color: #888; background: rgba(255,255,255,0.5); border-radius: 12px; border: 1px dashed #ccc;">저장된 프로젝트가 없습니다.</div>`;
+        } else {
+            backupKeys.forEach(key => {
+                const pid = key.replace('survey_backup_', '');
+                try {
+                    const data = JSON.parse(localStorage.getItem(key));
+                    const siteName = data.site_name || '이름 없는 프로젝트';
+                    html += `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px; background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.05);">
+                            <div>
+                                <div style="font-weight: 700; font-size: 1.15rem; margin-bottom: 8px; color: #2d3436;">${siteName}</div>
+                                <div style="font-size: 0.85rem; color: #636e72; display: flex; gap: 15px;">
+                                    <span>프로젝트 ID: <strong style="color:var(--primary);">${pid}</strong></span>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn btn-primary" onclick="copyHtmlFromList('${key}')" style="background: #20c997; border-color: #20c997; padding: 8px 12px; font-size: 0.85rem;" title="메일 템플릿 복사"><i class="ph ph-envelope-simple"></i> 복사</button>
+                                <button class="btn btn-secondary" onclick="deleteLocalData('${key}')" style="background: #ff4757; color: white; border: none; padding: 8px 12px; font-size: 0.85rem;" title="삭제"><i class="ph ph-trash"></i> 삭제</button>
+                                <a href="?pid=${pid}" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.85rem; text-decoration: none; border-radius: 20px;"><i class="ph ph-arrow-square-out"></i> 폼 열기</a>
+                            </div>
+                        </div>
+                    `;
+                } catch(e) {}
+            });
+        }
+    }
+    
+    html += `
+            </div>
+            <div class="form-actions" style="margin-top: 40px; text-align: center;">
+                <button class="btn btn-secondary" onclick="window.location.href=window.location.pathname" style="padding: 12px 30px; font-size: 1rem;"><i class="ph ph-house"></i> 메인 화면으로 돌아가기</button>
+            </div>
+        </div>
+    `;
+    
+    appContent.innerHTML = html;
+    updateModeUI();
+};
+
+window.copyHtmlFromList = function(key) {
+    try {
+        const data = JSON.parse(localStorage.getItem(key));
+        currentData = data;
+        window.showHtmlMailModal();
+    } catch(e) {
+        showAlert('오류', '데이터를 불러올 수 없습니다.', 'error');
+    }
+};
+
+window.deleteLocalData = function(key) {
+    if(confirm("해당 로컬 백업 데이터를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.")) {
+        localStorage.removeItem(key);
+        renderAdminDashboard();
+        showAlert('삭제 완료', '데이터가 삭제되었습니다.', 'success');
+    }
 };
