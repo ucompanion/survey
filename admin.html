@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>프로젝트 구축 상세 질문지</title>
-    <meta name="description" content="유컴패니온 프로젝트 구축을 위한 상세 정보 수집 양식입니다.">
+    <title>관리자 페이지 - 프로젝트 구축 상세 질문지</title>
     <!-- Favicon -->
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <!-- Google Fonts -->
@@ -15,6 +14,30 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
     <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-login-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 60vh;
+        }
+        .admin-login-panel {
+            max-width: 400px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+        .admin-login-panel h2 {
+            margin-bottom: 10px;
+        }
+        .admin-login-panel p {
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+    </style>
 </head>
 <body>
     <div class="background-animation">
@@ -25,45 +48,27 @@
 
     <main class="app-container">
         <header class="app-header">
-            <div class="logo-container" id="admin-trigger" title="관리자 모드 진입">
+            <div id="admin-logo" class="logo-container" title="Ucompanion Logo" style="cursor: pointer;">
                 <img src="https://ucomp.co.kr/assets/images/main/logo_ucomp_03.svg" alt="Ucompanion Logo" class="logo">
             </div>
-            <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 15px; align-items: center;">
-                <button id="btn-load-data" class="btn" style="background: rgba(226, 21, 33, 0.1); border: 1px solid rgba(226, 21, 33, 0.2); color: var(--primary); font-size: 0.85rem; font-weight: 600; padding: 6px 14px; border-radius: 20px; display: none; align-items: center; gap: 6px; cursor: pointer; transition: all 0.2s;"><i class="ph ph-folder-open"></i> <span id="load-site-name">등록된 홈페이지 확인</span></button>
-            </div>
-            <h1>프로젝트 구축 상세 질문지</h1>
-            <p class="subtitle">성공적인 프로젝트 구축을 위해 아래 질문에 답변해 주세요.</p>
+            <h1>관리자 대시보드</h1>
+            <p class="subtitle">제출된 프로젝트 구축 질문지 데이터를 관리합니다.</p>
         </header>
 
-        <div id="app-content">
-            <!-- Form content will be dynamically injected here -->
-        </div>
-        
-        <!-- Modal for JSON result -->
-        <div id="result-modal" class="modal-overlay hidden">
-            <div class="modal-content" style="text-align: center; background: #ffffff; border-radius: var(--radius-lg); box-shadow: 0 10px 40px rgba(0,0,0,0.15); padding: 40px 30px;">
-                <button class="modal-close"><i class="ph ph-x"></i></button>
-                <div class="success-icon" style="font-size: 4rem; color: var(--primary); margin-bottom: 16px;"><i class="ph-fill ph-check-circle"></i></div>
-                <h2 id="result-title">제출 완료</h2>
-                <p id="result-desc">입력하신 데이터가 저장되었습니다.</p>
-                <div class="modal-actions" style="margin-top: 30px;">
-                    <button id="btn-view" class="btn btn-primary w-full"><i class="ph ph-check-circle"></i> <span id="btn-view-text">확인 (작성한 화면 보기)</span></button>
+        <div id="admin-login-container" class="admin-login-wrapper">
+            <div class="admin-login-panel">
+                <div class="admin-icon" style="font-size: 3rem; color: var(--primary); margin-bottom: 16px;"><i class="ph ph-lock-key"></i></div>
+                <h2>관리자 인증</h2>
+                <p>결과를 확인하려면 비밀번호를 입력하세요.</p>
+                <div class="input-group" style="margin-bottom: 20px;">
+                    <input type="password" id="admin-password" class="form-control" placeholder="비밀번호 (예: admin)" style="width: 100%; padding: 12px; border: 1px solid #dee2e6; border-radius: var(--radius-sm);">
                 </div>
+                <button id="btn-admin-login" class="btn btn-primary" style="width: 100%; padding: 12px;">로그인</button>
             </div>
         </div>
 
-        <!-- Custom Confirm Modal -->
-        <div id="confirm-modal" class="modal-overlay hidden">
-            <div class="modal-content" style="text-align: center; background: #ffffff; border-radius: var(--radius-lg); box-shadow: 0 10px 40px rgba(0,0,0,0.15); padding: 40px 30px; max-width: 380px;">
-                <button class="modal-close"><i class="ph ph-x"></i></button>
-                <div class="warning-icon" style="font-size: 4rem; color: #ff9f43; margin-bottom: 16px;"><i class="ph-fill ph-warning-circle"></i></div>
-                <h2>초기화 안내</h2>
-                <p style="color: var(--text-muted); margin-bottom: 24px;">처음 화면으로 이동하시겠습니까?<br>작성 중이던 내용은 모두 초기화됩니다.</p>
-                <div class="modal-actions" style="display: flex; gap: 10px;">
-                    <button id="btn-confirm-cancel" class="btn btn-secondary" style="flex: 1; background: #f1f3f5; color: #495057; border: none;">취소</button>
-                    <button id="btn-confirm-ok" class="btn btn-primary" style="flex: 1;">확인</button>
-                </div>
-            </div>
+        <div id="app-content" style="display: none;">
+            <!-- Dashboard content will be dynamically injected here -->
         </div>
 
         <!-- Custom Alert Modal -->
@@ -73,12 +78,12 @@
                 <div id="alert-icon" style="font-size: 4rem; color: var(--primary); margin-bottom: 16px;"><i class="ph-fill ph-info"></i></div>
                 <h2 id="alert-title" style="margin-bottom: 8px;">알림</h2>
                 <p id="alert-desc" style="color: var(--text-muted); margin-bottom: 24px; word-break: keep-all; line-height: 1.5;"></p>
-                <div class="modal-actions">
+                <div class="modal-actions" id="alert-modal-actions" style="display: flex; gap: 10px;">
+                    <button id="btn-alert-cancel" class="btn btn-secondary w-full" style="display:none; background: #e0e0e0; color: #333; border: none;">취소</button>
                     <button id="btn-alert-ok" class="btn btn-primary w-full">확인</button>
                 </div>
             </div>
         </div>
-
 
         <!-- HTML Mail Copy Modal -->
         <div id="html-mail-modal" class="modal-overlay hidden">
@@ -105,5 +110,6 @@
 
     <script src="config.js"></script>
     <script src="script.js"></script>
+    <script src="script_admin.js"></script>
 </body>
 </html>

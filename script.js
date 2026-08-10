@@ -109,7 +109,7 @@ const formData = [
         category: "프로젝트 예산",
         icon: "ph-money",
         items: [
-            { id: "project_budget", label: "예산", type: "text", placeholder: "금액을 직접 입력해주세요 (예: 5,000만원 내외)" }
+            { id: "project_budget", label: "금액", type: "text", placeholder: "금액을 직접 입력해주세요 (예: 5,000만원 내외)" }
         ]
     }
 ];
@@ -124,6 +124,7 @@ const isTestMode = urlParams.get('test') === 'true';
 
 // v2.0 다중 프로젝트 구조 준비 (URL에서 pid 추출, 없으면 null)
 let projectId = urlParams.get('pid');
+let TARGET_ENV = urlParams.get('env') || CONFIG.ENV;
 
 // DOM Elements
 const appContent = document.getElementById('app-content');
@@ -131,7 +132,9 @@ const resultModal = document.getElementById('result-modal');
 const adminLoginModal = document.getElementById('admin-login-modal');
 
 // Initialize
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    if (window.location.pathname.includes('admin.html')) return; // Skip initialization for admin page
+
     // 관리자 로고 5번 클릭 이벤트는 항상 활성화
     setupAdminTrigger();
     
@@ -139,6 +142,21 @@ document.addEventListener('DOMContentLoaded', () => {
         // pid가 없으면 새 프로젝트 생성(ID 입력) 화면 렌더링
         renderLandingPage();
     } else {
+        // Auto load existing data if present
+        try {
+            const res = await fetch(`${CONFIG.API_BASE_URL}/api/load?projectId=${projectId}&env=${TARGET_ENV}`, {
+                headers: { 'bypass-tunnel-reminder': 'true' }
+            });
+            if (res.ok) {
+                currentData = await res.json();
+                currentMode = 'view';
+            } else {
+                currentMode = 'create';
+            }
+        } catch (e) {
+            currentMode = 'create';
+        }
+        
         // pid가 있으면 기존 로직대로 설문 폼 렌더링
         updateLoadButton();
         renderForm();
@@ -191,7 +209,7 @@ async function updateLoadButton() {
     if (!btn) return;
     
     try {
-        const res = await fetch(`${CONFIG.API_BASE_URL}/api/load?projectId=${projectId}`, {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/api/load?projectId=${projectId}&env=${TARGET_ENV}`, {
             headers: {
                 'bypass-tunnel-reminder': 'true'
             }
@@ -314,7 +332,11 @@ function renderForm() {
                 });
                 
                 if (!anyChecked) {
-                    html += `<div class="empty-indicator"><i class="ph ph-warning-circle"></i> 미입력 항목입니다</div>`;
+                    if (isChecking) {
+                        html += `<div class="empty-indicator" style="color: #ff9f43; background: rgba(255,159,67,0.1); border-color: rgba(255,159,67,0.3);"><i class="ph ph-warning-circle"></i> 확인중 항목입니다</div>`;
+                    } else {
+                        html += `<div class="empty-indicator"><i class="ph ph-warning-circle"></i> 미입력 항목입니다</div>`;
+                    }
                 }
                 
                 html += `</div>`;
@@ -345,6 +367,12 @@ function renderForm() {
                     <i class="ph ph-check-circle"></i> 
                     ${currentMode === 'edit' ? '수정 완료' : '제출하기'}
                  </button>`;
+        if (currentMode === 'edit') {
+            html += `<button type="button" class="btn btn-secondary" onclick="window.cancelEdit()" style="flex: 1; background: #868e96; color: white; border: none;">
+                        <i class="ph ph-x-circle"></i> 
+                        수정 취소
+                     </button>`;
+        }
         html += `</div>`;
     } else if (currentMode === 'view') {
         html += `<div style="display: flex; width: 100%; max-width: 800px;">`;
@@ -466,9 +494,7 @@ window.submitForm = async function() {
     
     // v2.0 다중 프로젝트 구조 준비: 데이터에 projectId 포함
     currentData.projectId = projectId;
-    
-    // 백엔드 다중화 개편 전까지, 모든 제출 내역을 로컬 스토리지에 무조건 백업 (관리자 목록 조회용)
-    localStorage.setItem(`survey_backup_${projectId}`, JSON.stringify(currentData));
+    currentData.env = TARGET_ENV;
     
     // Save to API
     try {
@@ -514,7 +540,7 @@ window.deleteData = async function() {
                 'Content-Type': 'application/json',
                 'bypass-tunnel-reminder': 'true' 
             },
-            body: JSON.stringify({ projectId: projectId })
+            body: JSON.stringify({ projectId: projectId, env: TARGET_ENV })
         });
         if (res.ok) {
             currentData = {};
@@ -539,13 +565,19 @@ window.showHtmlMailModal = function() {
         mailHtml += `  <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px;">\n`;
         section.items.forEach(item => {
             let val = currentData[item.id];
+            let isChecking = currentData[`${item.id}_checking`] === true;
             let displayVal = "";
+            
             if (Array.isArray(val)) {
                 displayVal = val.join(', ');
             } else if (val) {
                 displayVal = val;
             } else {
-                displayVal = "<span style='color: #999;'>미입력</span>";
+                if (isChecking) {
+                    displayVal = "<span style='color: #ff9f43; font-weight: bold;'>확인중</span>";
+                } else {
+                    displayVal = "<span style='color: #999;'>미입력</span>";
+                }
             }
             mailHtml += `    <tr>\n`;
             mailHtml += `      <th style="width: 30%; text-align: left; padding: 12px 10px; border-bottom: 1px solid #eee; background: #fafafa; font-weight: 600;">${item.label}</th>\n`;
@@ -617,12 +649,63 @@ window.showAlert = function(title, desc, type = 'success') {
         iconEl.style.color = '#0984e3';
     }
     
+    const cancelBtn = document.getElementById('btn-alert-cancel');
+    const okBtn = document.getElementById('btn-alert-ok');
+    if (cancelBtn) cancelBtn.style.display = 'none';
+    
+    // Reset okBtn styling and text
+    if (okBtn) {
+        okBtn.textContent = '확인';
+        okBtn.style.background = 'var(--primary)';
+        okBtn.style.borderColor = 'var(--primary)';
+    }
+    
+    // Unbind and rebind close listener to remove any confirm logic
+    if (okBtn) {
+        const newOkBtn = okBtn.cloneNode(true);
+        okBtn.parentNode.replaceChild(newOkBtn, okBtn);
+        newOkBtn.addEventListener('click', () => {
+            document.getElementById('alert-modal').classList.add('hidden');
+        });
+    }
+    
     document.getElementById('alert-modal').classList.remove('hidden');
 };
 
-document.getElementById('btn-alert-ok')?.addEventListener('click', () => {
-    document.getElementById('alert-modal').classList.add('hidden');
-});
+window.showConfirm = function(title, desc, onConfirm, confirmText = '확인') {
+    document.getElementById('alert-title').textContent = title;
+    document.getElementById('alert-desc').innerHTML = desc;
+    
+    const iconEl = document.getElementById('alert-icon');
+    iconEl.innerHTML = '<i class="ph-fill ph-warning-circle"></i>';
+    iconEl.style.color = '#ff4757';
+    
+    const cancelBtn = document.getElementById('btn-alert-cancel');
+    const okBtn = document.getElementById('btn-alert-ok');
+    
+    if (cancelBtn) {
+        cancelBtn.style.display = 'block';
+        okBtn.textContent = confirmText;
+        okBtn.style.background = '#ff4757';
+        okBtn.style.borderColor = '#ff4757';
+        
+        const newOkBtn = okBtn.cloneNode(true);
+        const newCancelBtn = cancelBtn.cloneNode(true);
+        okBtn.parentNode.replaceChild(newOkBtn, okBtn);
+        cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+        
+        newCancelBtn.addEventListener('click', () => {
+            document.getElementById('alert-modal').classList.add('hidden');
+        });
+        
+        newOkBtn.addEventListener('click', () => {
+            document.getElementById('alert-modal').classList.add('hidden');
+            if(onConfirm) onConfirm();
+        });
+    }
+    
+    document.getElementById('alert-modal').classList.remove('hidden');
+};
 
 document.querySelectorAll('.modal-close').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -661,7 +744,7 @@ document.getElementById('btn-confirm-ok')?.addEventListener('click', () => {
 
 document.getElementById('btn-load-data').addEventListener('click', async () => {
     try {
-        const res = await fetch(`${CONFIG.API_BASE_URL}/api/load`, {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/api/load?projectId=${projectId}&env=${TARGET_ENV}`, {
             headers: {
                 'bypass-tunnel-reminder': 'true'
             }
@@ -687,10 +770,17 @@ window.switchToEditMode = function() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
+window.cancelEdit = function() {
+    alert("수정이 취소되었습니다. 목록 화면으로 돌아갑니다.");
+    window.location.href = 'admin.html';
+};
+
 
 // Admin Login Logic
 function setupAdminTrigger() {
     const trigger = document.getElementById('admin-trigger');
+    if (!trigger) return;
+
     trigger.addEventListener('click', () => {
         adminClickCount++;
         
@@ -698,7 +788,8 @@ function setupAdminTrigger() {
         adminClickTimer = setTimeout(() => {
             if (adminClickCount === 1) {
                 if (currentMode === 'create' || currentMode === 'edit') {
-                    document.getElementById('confirm-modal').classList.remove('hidden');
+                    const confirmModal = document.getElementById('confirm-modal');
+                    if (confirmModal) confirmModal.classList.remove('hidden');
                 } else {
                     window.location.href = window.location.pathname;
                 }
@@ -709,38 +800,7 @@ function setupAdminTrigger() {
         if (adminClickCount >= 5) {
             clearTimeout(adminClickTimer);
             adminClickCount = 0;
-            adminLoginModal.classList.remove('hidden');
-            document.getElementById('admin-password').value = '';
-            document.getElementById('admin-password').focus();
-        }
-    });
-
-    document.getElementById('btn-admin-login').addEventListener('click', async () => {
-        const pw = document.getElementById('admin-password').value;
-        if (pw === 'admin') {
-            adminLoginModal.classList.add('hidden');
-            // Try to load saved data
-            try {
-                const res = await fetch(`${CONFIG.API_BASE_URL}/api/load`, {
-                    headers: {
-                        'bypass-tunnel-reminder': 'true'
-                    }
-                });
-                if (res.ok) {
-                    currentData = await res.json();
-                }
-            } catch (e) {}
-            
-            if (Object.keys(currentData).length === 0) {
-                currentMode = 'admin_list';
-                renderAdminDashboard();
-            } else {
-                currentMode = 'admin_list';
-                renderAdminDashboard();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-        } else {
-            showAlert('오류', '비밀번호가 일치하지 않습니다.', 'error');
+            window.location.href = 'admin.html';
         }
     });
 }
@@ -799,102 +859,4 @@ window.fillDummyData = function() {
     isTestMode = true;
 };
 
-window.renderAdminDashboard = function() {
-    let html = `
-        <div class="form-section glass-panel" style="animation: slideUp 0.5s ease forwards;">
-            <div class="section-title" style="font-size: 1.5rem; margin-bottom: 5px;">
-                <i class="ph ph-list-dashes"></i> 프로젝트 대시보드
-            </div>
-            <p style="color: var(--text-muted); margin-bottom: 30px; font-size: 0.95rem;">
-                현재 백엔드 다중화 개편 전이므로, 사용자 브라우저에 임시 저장된 프로젝트 목록만 표시됩니다.
-            </p>
-            <div style="display:flex; flex-direction:column; gap: 15px;">
-    `;
-    
-    const backupKeys = [];
-    for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith('survey_backup_')) {
-            backupKeys.push(key);
-        }
-    }
-    
-    // 서버에서 불러온 데이터가 있다면 (온라인)
-    if (Object.keys(currentData).length > 0) {
-        const siteName = currentData.site_name || '이름 없는 프로젝트';
-        html += `
-            <div style="margin-bottom: 20px;">
-                <h4 style="margin-bottom: 10px; color: var(--primary); font-size: 1rem;"><i class="ph ph-hard-drives"></i> 서버에 저장된 데이터 (단일)</h4>
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px; background: rgba(95, 61, 196, 0.05); border-radius: 12px; border: 1px solid rgba(95, 61, 196, 0.2);">
-                    <div>
-                        <div style="font-weight: 700; font-size: 1.15rem; margin-bottom: 8px; color: #2d3436;">${siteName}</div>
-                        <div style="font-size: 0.85rem; color: #636e72;">현재 백엔드(survey_data.json)에 저장되어 있는 원본 데이터입니다.</div>
-                    </div>
-                    <div style="display: flex; gap: 8px;">
-                        <button class="btn btn-primary" onclick="showHtmlMailModal()" style="background: #20c997; border-color: #20c997; padding: 8px 12px; font-size: 0.85rem;" title="메일 템플릿 복사"><i class="ph ph-envelope-simple"></i> 복사</button>
-                        <button class="btn btn-primary" onclick="currentMode='view'; renderForm();" style="padding: 8px 16px; font-size: 0.85rem; border-radius: 20px;"><i class="ph ph-eye"></i> 원본 보기</button>
-                    </div>
-                </div>
-            </div>
-        `;
-    } else {
-        // 서버 데이터가 없을 때만 로컬 백업 데이터 표시 (오프라인/미저장 상태)
-        html += `<h4 style="margin-bottom: 10px; color: #636e72; font-size: 1rem; margin-top: 10px;"><i class="ph ph-floppy-disk"></i> 브라우저 임시 저장(백업) 데이터</h4>`;
-        
-        if (backupKeys.length === 0) {
-            html += `<div style="text-align: center; padding: 50px; color: #888; background: rgba(255,255,255,0.5); border-radius: 12px; border: 1px dashed #ccc;">저장된 프로젝트가 없습니다.</div>`;
-        } else {
-            backupKeys.forEach(key => {
-                const pid = key.replace('survey_backup_', '');
-                try {
-                    const data = JSON.parse(localStorage.getItem(key));
-                    const siteName = data.site_name || '이름 없는 프로젝트';
-                    html += `
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px; background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.05);">
-                            <div>
-                                <div style="font-weight: 700; font-size: 1.15rem; margin-bottom: 8px; color: #2d3436;">${siteName}</div>
-                                <div style="font-size: 0.85rem; color: #636e72; display: flex; gap: 15px;">
-                                    <span>프로젝트 ID: <strong style="color:var(--primary);">${pid}</strong></span>
-                                </div>
-                            </div>
-                            <div style="display: flex; gap: 8px;">
-                                <button class="btn btn-primary" onclick="copyHtmlFromList('${key}')" style="background: #20c997; border-color: #20c997; padding: 8px 12px; font-size: 0.85rem;" title="메일 템플릿 복사"><i class="ph ph-envelope-simple"></i> 복사</button>
-                                <button class="btn btn-secondary" onclick="deleteLocalData('${key}')" style="background: #ff4757; color: white; border: none; padding: 8px 12px; font-size: 0.85rem;" title="삭제"><i class="ph ph-trash"></i> 삭제</button>
-                                <a href="?pid=${pid}" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.85rem; text-decoration: none; border-radius: 20px;"><i class="ph ph-arrow-square-out"></i> 폼 열기</a>
-                            </div>
-                        </div>
-                    `;
-                } catch(e) {}
-            });
-        }
-    }
-    
-    html += `
-            </div>
-            <div class="form-actions" style="margin-top: 40px; text-align: center;">
-                <button class="btn btn-secondary" onclick="window.location.href=window.location.pathname" style="padding: 12px 30px; font-size: 1rem;"><i class="ph ph-house"></i> 메인 화면으로 돌아가기</button>
-            </div>
-        </div>
-    `;
-    
-    appContent.innerHTML = html;
-    updateModeUI();
-};
-
-window.copyHtmlFromList = function(key) {
-    try {
-        const data = JSON.parse(localStorage.getItem(key));
-        currentData = data;
-        window.showHtmlMailModal();
-    } catch(e) {
-        showAlert('오류', '데이터를 불러올 수 없습니다.', 'error');
-    }
-};
-
-window.deleteLocalData = function(key) {
-    if(confirm("해당 로컬 백업 데이터를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.")) {
-        localStorage.removeItem(key);
-        renderAdminDashboard();
-        showAlert('삭제 완료', '데이터가 삭제되었습니다.', 'success');
-    }
-};
+// admin dashboard logic moved to script_admin.js

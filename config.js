@@ -7,7 +7,7 @@
  */
 
 // TODO: 나중에 백엔드 연동(2단계) 시 아래 주석을 해제하여 API 주소를 연결하세요.
-let apiUrl = 'https://wiley-shakira-book-bio.trycloudflare.com';
+let apiUrl = 'https://divx-tender-generate-clicking.trycloudflare.com';
 let currentEnv = 'staging';
 
 if (window.location.hostname.includes('github.io')) {
