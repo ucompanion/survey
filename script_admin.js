@@ -175,8 +175,15 @@ window.copyHtmlFromServer = async function(pid) {
 };
 
 window.copyLink = function(pid) {
-    const baseUrl = window.location.origin + window.location.pathname.replace('admin.html', 'index.html');
-    const link = `${baseUrl}?pid=${pid}&env=${window.adminViewEnv}`;
+    let link = '';
+    if (window.adminViewEnv === 'prod') {
+        // 운영 깃허브 주소 고정 (필요시 도메인 수정)
+        link = `https://ucompanion.github.io/survey/?pid=${pid}`;
+    } else {
+        // 검증 trycloudflare 주소 고정
+        link = `${CONFIG.API_BASE_URL}/?pid=${pid}`;
+    }
+    
     navigator.clipboard.writeText(link).then(() => {
         showAlert('복사 완료', '해당 프로젝트의 전용 접속 링크가 복사되었습니다.<br><br><span style="font-size:0.85rem;word-break:break-all;color:#636e72;">' + link + '</span>', 'success');
     }).catch(() => {
