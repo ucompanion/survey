@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
         // Auto load existing data if present
         try {
-            const res = await fetch(`${CONFIG.API_BASE_URL}/api/load?projectId=${projectId}&env=${TARGET_ENV}`, {
+            const res = await fetch(`${CONFIG.API_BASE_URL}/request_api/load.php?projectId=${projectId}&env=${TARGET_ENV}`, {
                 headers: { 'bypass-tunnel-reminder': 'true' }
             });
             if (res.ok) {
@@ -209,7 +209,7 @@ async function updateLoadButton() {
     if (!btn) return;
     
     try {
-        const res = await fetch(`${CONFIG.API_BASE_URL}/api/load?projectId=${projectId}&env=${TARGET_ENV}`, {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/request_api/load.php?projectId=${projectId}&env=${TARGET_ENV}`, {
             headers: {
                 'bypass-tunnel-reminder': 'true'
             }
@@ -498,7 +498,7 @@ window.submitForm = async function() {
     
     // Save to API
     try {
-        const res = await fetch(`${CONFIG.API_BASE_URL}/api/save`, {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/request_api/save.php`, {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
@@ -534,7 +534,7 @@ window.submitForm = async function() {
 window.deleteData = async function() {
     if (!confirm("정말 등록된 데이터를 모두 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.")) return;
     try {
-        const res = await fetch(`${CONFIG.API_BASE_URL}/api/delete`, {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/request_api/delete.php`, {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
@@ -744,7 +744,7 @@ document.getElementById('btn-confirm-ok')?.addEventListener('click', () => {
 
 document.getElementById('btn-load-data').addEventListener('click', async () => {
     try {
-        const res = await fetch(`${CONFIG.API_BASE_URL}/api/load?projectId=${projectId}&env=${TARGET_ENV}`, {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/request_api/load.php?projectId=${projectId}&env=${TARGET_ENV}`, {
             headers: {
                 'bypass-tunnel-reminder': 'true'
             }

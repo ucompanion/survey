@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function fetchProjectsList() {
     try {
-        const res = await fetch(`${CONFIG.API_BASE_URL}/api/list?env=${window.adminViewEnv}`, {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/request_api/list.php?env=${window.adminViewEnv}`, {
             headers: { 'bypass-tunnel-reminder': 'true' }
         });
         if (res.ok) {
@@ -160,7 +160,7 @@ window.switchAdminEnv = async function(targetEnv) {
 // 서버에 저장된 데이터를 복사하기 위한 함수
 window.copyHtmlFromServer = async function(pid) {
     try {
-        const res = await fetch(`${CONFIG.API_BASE_URL}/api/load?projectId=${pid}&env=${window.adminViewEnv}`, {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/request_api/load.php?projectId=${pid}&env=${window.adminViewEnv}`, {
             headers: { 'bypass-tunnel-reminder': 'true' }
         });
         if (res.ok) {
@@ -175,14 +175,8 @@ window.copyHtmlFromServer = async function(pid) {
 };
 
 window.copyLink = function(pid) {
-    let link = '';
-    if (window.adminViewEnv === 'prod') {
-        // 운영 깃허브 주소 고정 (필요시 도메인 수정)
-        link = `https://ucompanion.github.io/survey/?pid=${pid}`;
-    } else {
-        // 검증 trycloudflare 주소 고정
-        link = `${CONFIG.API_BASE_URL}/?pid=${pid}`;
-    }
+    // 도메인에 따라 환경이 자동 결정되므로, env 파라미터 없이 pid(프로젝트 ID)만 전달합니다.
+    link = `${CONFIG.API_BASE_URL}/?pid=${pid}`;
     
     navigator.clipboard.writeText(link).then(() => {
         showAlert('복사 완료', '해당 프로젝트의 전용 접속 링크가 복사되었습니다.<br><br><span style="font-size:0.85rem;word-break:break-all;color:#636e72;">' + link + '</span>', 'success');
@@ -198,7 +192,7 @@ window.deleteServerData = function(pid) {
         '서버에 저장된 이 프로젝트를 완전히 삭제하시겠습니까?<br>이 작업은 되돌릴 수 없습니다.', 
         async () => {
             try {
-                const res = await fetch(`${CONFIG.API_BASE_URL}/api/delete`, {
+                const res = await fetch(`${CONFIG.API_BASE_URL}/request_api/delete.php`, {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
