@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function fetchProjectsList() {
     try {
-        const res = await fetch(`${CONFIG.API_BASE_URL}/request_api/list.php?env=${window.adminViewEnv}`, {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/list.php?env=${window.adminViewEnv}`, {
             headers: { 'bypass-tunnel-reminder': 'true' }
         });
         if (res.ok) {
@@ -160,7 +160,7 @@ window.switchAdminEnv = async function(targetEnv) {
 // 서버에 저장된 데이터를 복사하기 위한 함수
 window.copyHtmlFromServer = async function(pid) {
     try {
-        const res = await fetch(`${CONFIG.API_BASE_URL}/request_api/load.php?projectId=${pid}&env=${window.adminViewEnv}`, {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/load.php?projectId=${pid}&env=${window.adminViewEnv}`, {
             headers: { 'bypass-tunnel-reminder': 'true' }
         });
         if (res.ok) {
@@ -175,9 +175,16 @@ window.copyHtmlFromServer = async function(pid) {
 };
 
 window.copyLink = function(pid) {
-    // 도메인에 따라 환경이 자동 결정되므로, env 파라미터 없이 pid(프로젝트 ID)만 전달합니다.
-    link = `${CONFIG.API_BASE_URL}/?pid=${pid}`;
-    
+    // 현재 URL(admin.html)을 기반으로 index.html의 절대 경로를 생성합니다.
+    let baseUrl = window.location.href.split('?')[0];
+    if (baseUrl.endsWith('admin.html')) {
+        baseUrl = baseUrl.replace('admin.html', 'index.html');
+    } else if (baseUrl.endsWith('/')) {
+        baseUrl += 'index.html';
+    } else {
+        baseUrl += '/index.html';
+    }
+    const link = `${baseUrl}?pid=${pid}`;
     navigator.clipboard.writeText(link).then(() => {
         showAlert('복사 완료', '해당 프로젝트의 전용 접속 링크가 복사되었습니다.<br><br><span style="font-size:0.85rem;word-break:break-all;color:#636e72;">' + link + '</span>', 'success');
     }).catch(() => {
@@ -192,7 +199,7 @@ window.deleteServerData = function(pid) {
         '서버에 저장된 이 프로젝트를 완전히 삭제하시겠습니까?<br>이 작업은 되돌릴 수 없습니다.', 
         async () => {
             try {
-                const res = await fetch(`${CONFIG.API_BASE_URL}/request_api/delete.php`, {
+                const res = await fetch(`${CONFIG.API_BASE_URL}/delete.php`, {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',

@@ -659,3 +659,64 @@ textarea.form-control {
         grid-template-columns: 1fr;
     }
 }
+
+.read-only-view .file-input-field {
+    display: none;
+}
+
+
+/* Custom File Upload UI */
+.custom-file-upload {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 4px;
+}
+
+.file-input-hidden {
+    display: none;
+}
+
+.btn-file-upload {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: var(--radius-sm);
+    color: #495057;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-file-upload:hover {
+    background: #e9ecef;
+    border-color: #ced4da;
+    color: var(--primary);
+}
+
+.btn-file-upload i {
+    font-size: 1.1rem;
+}
+
+.file-name-display {
+    font-size: 0.9rem;
+    color: #6c757d;
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Hide upload button in view mode, only show existing files */
+.read-only-view .btn-file-upload, .read-only-view .file-input-hidden {
+    display: none;
+}
+
+.read-only-view .file-empty-text {
+    display: inline-flex !important;
+}
+

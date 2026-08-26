@@ -11,6 +11,7 @@ const formData = [
             { id: "benchmarking", label: "벤치마킹", type: "textarea", placeholder: "참고할 만한 사이트 URL이나 특징을 적어주세요." },
             { id: "reason", label: "개편이유", type: "textarea", placeholder: "프로젝트를 진행하게 된 주된 배경을 적어주세요." },
             { id: "requirements", label: "정보구조 및 기능개선 요구사항", type: "textarea", placeholder: "핵심적으로 필요한 기능이나 메뉴 구조 변경 사항을 적어주세요." },
+            { id: "requirements_file", label: "요구사항 정의서(RFP) 첨부", type: "file" },
             { id: "purpose", label: "홈페이지 목적", type: "text", placeholder: "기업홍보, 쇼핑몰, 예약, 커뮤니티, 서비스, 랜딩페이지 등 자유롭게 작성해주세요" },
             { id: "competitors", label: "경쟁업체", type: "text", placeholder: "동일한 서비스를 제공하는 경쟁업체명 또는 URL을 입력해 주세요." },
             { id: "brand_image", label: "선호하는 브랜드 이미지", type: "text", placeholder: "전문적이고 신뢰감 있는 이미지, 친근하고 편안한 이미지, 세련되고 고급스러운 이미지" },
@@ -92,9 +93,10 @@ const formData = [
         items: [
             { id: "maintenance", label: "유지보수 업체", type: "radio", options: ["있음", "없음"] },
             { id: "source_code", label: "소스코드 보유", type: "radio", options: ["회사", "개발사", "없음"] },
-            { id: "doc_design", label: "설계서", type: "radio", options: ["있음", "없음"] },
-            { id: "doc_erd", label: "DB ERD", type: "radio", options: ["있음", "없음"] },
-            { id: "doc_api", label: "API 문서", type: "radio", options: ["있음", "없음"] }
+            { id: "doc_design", label: "설계서", type: "file" },
+            { id: "doc_erd", label: "DB ERD", type: "file" },
+            { id: "doc_api", label: "API 문서", type: "file" },
+            { id: "org_personnel", label: "조직인원", type: "text", placeholder: "예: 00명" }
         ]
     },
     {
@@ -137,14 +139,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 관리자 로고 5번 클릭 이벤트는 항상 활성화
     setupAdminTrigger();
-    
+
     if (!projectId) {
         // pid가 없으면 새 프로젝트 생성(ID 입력) 화면 렌더링
         renderLandingPage();
     } else {
         // Auto load existing data if present
         try {
-            const res = await fetch(`${CONFIG.API_BASE_URL}/request_api/load.php?projectId=${projectId}&env=${TARGET_ENV}`, {
+            const res = await fetch(`${CONFIG.API_BASE_URL}/load.php?projectId=${projectId}&env=${TARGET_ENV}`, {
                 headers: { 'bypass-tunnel-reminder': 'true' }
             });
             if (res.ok) {
@@ -156,7 +158,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch (e) {
             currentMode = 'create';
         }
-        
+
         // pid가 있으면 기존 로직대로 설문 폼 렌더링
         updateLoadButton();
         renderForm();
@@ -182,13 +184,13 @@ function renderLandingPage() {
         </div>
     `;
     appContent.innerHTML = html;
-    
+
     // 헤더의 로드 버튼 숨김 처리
     const loadBtn = document.getElementById('btn-load-data');
-    if(loadBtn) loadBtn.style.display = 'none';
+    if (loadBtn) loadBtn.style.display = 'none';
 }
 
-window.startNewProject = function() {
+window.startNewProject = function () {
     const input = document.getElementById('landing-pid-input').value.trim();
     if (!input) {
         showAlert('알림', '프로젝트 ID를 입력해주세요.', 'info');
@@ -199,7 +201,7 @@ window.startNewProject = function() {
         showAlert('알림', '프로젝트 ID는 영문, 숫자, 밑줄(_)만 사용 가능합니다.', 'warning');
         return;
     }
-    
+
     // 해당 ID의 URL로 리다이렉트
     window.location.href = '?pid=' + input;
 };
@@ -207,9 +209,9 @@ window.startNewProject = function() {
 async function updateLoadButton() {
     const btn = document.getElementById('btn-load-data');
     if (!btn) return;
-    
+
     try {
-        const res = await fetch(`${CONFIG.API_BASE_URL}/request_api/load.php?projectId=${projectId}&env=${TARGET_ENV}`, {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/load.php?projectId=${projectId}&env=${TARGET_ENV}`, {
             headers: {
                 'bypass-tunnel-reminder': 'true'
             }
@@ -223,14 +225,14 @@ async function updateLoadButton() {
         } else {
             btn.style.display = 'none';
         }
-    } catch(e) {
+    } catch (e) {
         btn.style.display = 'none';
     }
 }
 
 function renderForm() {
     let html = `<div id="mode-banner"></div>`;
-    
+
     let topActionHtml = '';
     if (currentMode === 'view') {
         topActionHtml = `
@@ -242,14 +244,17 @@ function renderForm() {
         `;
     } else if (currentMode === 'edit') {
         topActionHtml = `
-            <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 20px;">
                 <button type="button" class="btn btn-primary" onclick="submitForm()" style="padding: 10px 20px; font-size: 0.95rem;">
                     <i class="ph ph-check-circle"></i> 수정 완료
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="window.cancelEdit()" style="padding: 10px 20px; font-size: 0.95rem; background: #868e96; color: white; border: none;">
+                    <i class="ph ph-x-circle"></i> 수정 취소
                 </button>
             </div>
         `;
     }
-    
+
     html += topActionHtml;
     formData.forEach((section, sIndex) => {
         html += `
@@ -263,12 +268,12 @@ function renderForm() {
         section.items.forEach(item => {
             const isChecking = currentData[`${item.id}_checking`] === true;
             html += `<div class="form-group ${isChecking ? 'is-checking' : ''}" id="group_${item.id}">`;
-            
+
             html += `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                     <label class="form-label" style="margin-bottom: 0;">${item.label}</label>
-                    ${(currentMode === 'view' || currentMode === 'admin') ? 
-                        (isChecking ? `<span style="color: #ff9f43; font-weight: bold; font-size: 0.9rem; display: flex; align-items: center; gap: 4px;"><i class="ph ph-warning-circle"></i> 확인중</span>` : '') 
+                    ${(currentMode === 'view' || currentMode === 'admin') ?
+                    (isChecking ? `<span style="color: #ff9f43; font-weight: bold; font-size: 0.9rem; display: flex; align-items: center; gap: 4px;"><i class="ph ph-warning-circle"></i> 확인중</span>` : '')
                     : `
                     <label class="checking-toggle">
                         <input type="checkbox" class="tgl-checking" data-id="${item.id}" ${isChecking ? 'checked' : ''}>
@@ -282,11 +287,47 @@ function renderForm() {
 
             if (item.type === 'text' || item.type === 'url') {
                 html += `<input type="${item.type}" id="${item.id}" name="${item.id}" class="form-control" placeholder="${item.placeholder || ''}" value="${val}">`;
+            } else if (item.type === 'file') {
+                const hasExistingFile = (val && val !== '확인중');
+                const existingFilename = hasExistingFile ? (val.split('/').pop() || '다운로드') : '';
+                
+                const btnLabel = hasExistingFile ? '파일 변경하기' : '파일 첨부하기';
+                
+                html += `
+                <div class="custom-file-upload" style="display: flex; align-items: center; gap: 12px; margin-top: 4px;">
+                    <div style="display: flex; align-items: center;">
+                        <label for="${item.id}" class="btn-file-upload" style="margin-bottom: 0;">
+                            <i class="ph ph-upload-simple"></i> <span class="btn-text">${btnLabel}</span>
+                        </label>
+                        <input type="file" id="${item.id}" name="${item.id}" class="file-input-hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.zip" onchange="
+                            const displayArea = document.getElementById('file_display_${item.id}');
+                            const btnText = this.parentElement.querySelector('.btn-text');
+                            if (this.files[0]) {
+                                displayArea.innerHTML = '<a href=\\'javascript:void(0)\\' class=\\'file-download-link\\' style=\\'color: var(--primary); text-decoration: underline; display: inline-flex; align-items: center; gap: 4px; font-weight: 500;\\'><i class=\\'ph ph-download-simple\\'></i> ' + this.files[0].name + '</a>';
+                                btnText.textContent = '파일 변경하기';
+                            } else {
+                                ${hasExistingFile ? `displayArea.innerHTML = '<a href=\\'${val}\\' target=\\'_blank\\' class=\\'file-download-link\\' style=\\'color: var(--primary); text-decoration: underline; display: inline-flex; align-items: center; gap: 4px; font-weight: 500;\\'><i class=\\'ph ph-download-simple\\'></i> ${existingFilename}</a>'; btnText.textContent = '파일 변경하기';` : `displayArea.innerHTML = '<span class=\\'file-empty-text\\' style=\\'color: #999; display: none; align-items: center; gap: 4px;\\'><i class=\\'ph ph-warning-circle\\'></i> 미입력 항목입니다.</span>'; btnText.textContent = '파일 첨부하기';`}
+                            }
+                        ">
+                    </div>
+                    
+                    <div id="file_display_${item.id}" class="file-display-area" style="font-size: 0.95rem;">
+                        ${hasExistingFile ? 
+                            `<a href="${val}" target="_blank" class="file-download-link" style="color: var(--primary); text-decoration: underline; display: inline-flex; align-items: center; gap: 4px; font-weight: 500;">
+                                <i class="ph ph-download-simple"></i> ${existingFilename}
+                            </a>` 
+                            : 
+                            `<span class="file-empty-text" style="color: #999; display: none; align-items: center; gap: 4px;">
+                                <i class="ph ph-warning-circle"></i> 미입력 항목입니다.
+                            </span>`
+                        }
+                    </div>
+                </div>`;
             } else if (item.type === 'textarea') {
                 html += `<textarea id="${item.id}" name="${item.id}" class="form-control" placeholder="${item.placeholder || ''}">${val}</textarea>`;
             } else if (item.type === 'radio' || item.type === 'checkbox') {
                 html += `<div class="options-grid">`;
-                
+
                 let isOtherSelected = false;
                 let otherValue = '';
                 let anyChecked = false;
@@ -294,7 +335,7 @@ function renderForm() {
                 item.options.forEach((opt, oIndex) => {
                     const optId = `${item.id}_${oIndex}`;
                     let checked = false;
-                    
+
                     if (item.type === 'radio') {
                         if (val === opt || (item.allowDirectInput && opt === '기타' && val && !item.options.includes(val))) {
                             checked = true;
@@ -330,7 +371,7 @@ function renderForm() {
                         </label>
                     `;
                 });
-                
+
                 if (!anyChecked) {
                     if (isChecking) {
                         html += `<div class="empty-indicator" style="color: #ff9f43; background: rgba(255,159,67,0.1); border-color: rgba(255,159,67,0.3);"><i class="ph ph-warning-circle"></i> 확인중 항목입니다</div>`;
@@ -338,7 +379,7 @@ function renderForm() {
                         html += `<div class="empty-indicator"><i class="ph ph-warning-circle"></i> 미입력 항목입니다</div>`;
                     }
                 }
-                
+
                 html += `</div>`;
 
                 if (item.allowDirectInput) {
@@ -400,12 +441,12 @@ function renderForm() {
 }
 
 // Handle Custom UI for Radio/Checkbox
-window.handleOptionChange = function(groupId, type, element, allowDirectInput) {
+window.handleOptionChange = function (groupId, type, element, allowDirectInput) {
     if (currentMode === 'admin') return;
 
     const group = document.getElementById(`group_${groupId}`);
     const directInputContainer = document.getElementById(`direct_${groupId}`);
-    
+
     if (type === 'radio') {
         // Remove active class from all in group
         const cards = group.querySelectorAll('.option-card');
@@ -437,8 +478,9 @@ window.handleOptionChange = function(groupId, type, element, allowDirectInput) {
 };
 
 // Gather form data and process it
-window.submitForm = async function() {
+window.submitForm = async function () {
     const data = {};
+    const formDataObj = new FormData();
     let isValid = true;
 
     formData.forEach(section => {
@@ -469,7 +511,7 @@ window.submitForm = async function() {
             } else if (item.type === 'checkbox') {
                 const checked = document.querySelectorAll(`input[name="${item.id}"]:checked`);
                 const values = Array.from(checked).map(cb => cb.value);
-                
+
                 if (values.includes('기타') && item.allowDirectInput) {
                     const directVal = document.getElementById(`input_${item.id}`).value.trim();
                     if (directVal) {
@@ -483,6 +525,14 @@ window.submitForm = async function() {
                 } else {
                     data[item.id] = values;
                 }
+            } else if (item.type === 'file') {
+                const fileInput = document.getElementById(item.id);
+                if (fileInput && fileInput.files.length > 0) {
+                    formDataObj.append(item.id, fileInput.files[0]);
+                } else if (currentData && currentData[item.id]) {
+                    // Keep existing file URL if no new file is uploaded
+                    data[item.id] = currentData[item.id];
+                }
             }
         });
     });
@@ -491,37 +541,39 @@ window.submitForm = async function() {
     if (isTestMode) {
         currentData._is_test = true;
     }
-    
+
     // v2.0 다중 프로젝트 구조 준비: 데이터에 projectId 포함
     currentData.projectId = projectId;
     currentData.env = TARGET_ENV;
-    
+
+    // Append the JSON payload to formDataObj
+    formDataObj.append('payload', JSON.stringify(currentData));
+
     // Save to API
     try {
-        const res = await fetch(`${CONFIG.API_BASE_URL}/request_api/save.php`, {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/save.php`, {
             method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
+            headers: {
                 'bypass-tunnel-reminder': 'true'
             },
-            body: JSON.stringify(currentData)
+            body: formDataObj
         });
-        
+
         if (!res.ok) throw new Error('Server returned an error');
 
         updateLoadButton();
-        
+
         // Show Success Modal
         const siteName = currentData.site_name || '프로젝트';
         document.getElementById('result-title').innerHTML = `<strong>${siteName}</strong> 제출 완료`;
         document.getElementById('result-desc').innerHTML = isTestMode ? "테스트 정보가 성공적으로 임시 저장되었습니다. (테스트)" : "입력하신 정보가 성공적으로 제출되었습니다.";
         document.getElementById('btn-view-text').textContent = `확인 (작성한 화면 보기)`;
-        
+
         resultModal.classList.remove('hidden');
-        
+
     } catch (e) {
         console.error('Save failed:', e);
-        
+
         // 에러 알림창 띄우기
         if (typeof showAlert === 'function') {
             showAlert('서버 연결 실패', '서버와 통신할 수 없어 데이터가 브라우저에 임시 저장되었습니다.<br>나중에 다시 시도해 주세요.', 'error');
@@ -531,14 +583,14 @@ window.submitForm = async function() {
     }
 };
 
-window.deleteData = async function() {
+window.deleteData = async function () {
     if (!confirm("정말 등록된 데이터를 모두 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.")) return;
     try {
-        const res = await fetch(`${CONFIG.API_BASE_URL}/request_api/delete.php`, {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/delete.php`, {
             method: 'POST',
-            headers: { 
+            headers: {
                 'Content-Type': 'application/json',
-                'bypass-tunnel-reminder': 'true' 
+                'bypass-tunnel-reminder': 'true'
             },
             body: JSON.stringify({ projectId: projectId, env: TARGET_ENV })
         });
@@ -551,15 +603,15 @@ window.deleteData = async function() {
         } else {
             showAlert('오류', '데이터 삭제에 실패했습니다.', 'error');
         }
-    } catch(e) {
+    } catch (e) {
         showAlert('오류', '서버 통신 중 오류가 발생했습니다.', 'error');
     }
 };
 
-window.showHtmlMailModal = function() {
+window.showHtmlMailModal = function () {
     let mailHtml = `<div style="font-family: sans-serif; max-width: 800px; margin: 0 auto; color: #333; line-height: 1.6;">\n`;
     mailHtml += `  <h2 style="color: #5f3dc4; border-bottom: 2px solid #5f3dc4; padding-bottom: 10px;">유컴패니온 프로젝트 구축 상세 질문지</h2>\n`;
-    
+
     formData.forEach(section => {
         mailHtml += `  <h3 style="background: #f8f9fa; padding: 10px; border-radius: 4px; margin-top: 20px;">[${section.category}]</h3>\n`;
         mailHtml += `  <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px;">\n`;
@@ -567,7 +619,7 @@ window.showHtmlMailModal = function() {
             let val = currentData[item.id];
             let isChecking = currentData[`${item.id}_checking`] === true;
             let displayVal = "";
-            
+
             if (Array.isArray(val)) {
                 displayVal = val.join(', ');
             } else if (val) {
@@ -587,10 +639,10 @@ window.showHtmlMailModal = function() {
         mailHtml += `  </table>\n`;
     });
     mailHtml += `</div>`;
-    
+
     document.getElementById('html-source-area').value = mailHtml;
     document.getElementById('html-preview-area').innerHTML = mailHtml;
-    
+
     // Default to preview tab
     document.getElementById('tab-preview').style.background = 'var(--primary)';
     document.getElementById('tab-preview').style.color = '#fff';
@@ -633,10 +685,10 @@ document.getElementById('tab-source')?.addEventListener('click', () => {
 });
 
 // Modal Actions
-window.showAlert = function(title, desc, type = 'success') {
+window.showAlert = function (title, desc, type = 'success') {
     document.getElementById('alert-title').textContent = title;
     document.getElementById('alert-desc').innerHTML = desc;
-    
+
     const iconEl = document.getElementById('alert-icon');
     if (type === 'success') {
         iconEl.innerHTML = '<i class="ph-fill ph-check-circle"></i>';
@@ -648,18 +700,18 @@ window.showAlert = function(title, desc, type = 'success') {
         iconEl.innerHTML = '<i class="ph-fill ph-info"></i>';
         iconEl.style.color = '#0984e3';
     }
-    
+
     const cancelBtn = document.getElementById('btn-alert-cancel');
     const okBtn = document.getElementById('btn-alert-ok');
     if (cancelBtn) cancelBtn.style.display = 'none';
-    
+
     // Reset okBtn styling and text
     if (okBtn) {
         okBtn.textContent = '확인';
         okBtn.style.background = 'var(--primary)';
         okBtn.style.borderColor = 'var(--primary)';
     }
-    
+
     // Unbind and rebind close listener to remove any confirm logic
     if (okBtn) {
         const newOkBtn = okBtn.cloneNode(true);
@@ -668,42 +720,42 @@ window.showAlert = function(title, desc, type = 'success') {
             document.getElementById('alert-modal').classList.add('hidden');
         });
     }
-    
+
     document.getElementById('alert-modal').classList.remove('hidden');
 };
 
-window.showConfirm = function(title, desc, onConfirm, confirmText = '확인') {
+window.showConfirm = function (title, desc, onConfirm, confirmText = '확인') {
     document.getElementById('alert-title').textContent = title;
     document.getElementById('alert-desc').innerHTML = desc;
-    
+
     const iconEl = document.getElementById('alert-icon');
     iconEl.innerHTML = '<i class="ph-fill ph-warning-circle"></i>';
     iconEl.style.color = '#ff4757';
-    
+
     const cancelBtn = document.getElementById('btn-alert-cancel');
     const okBtn = document.getElementById('btn-alert-ok');
-    
+
     if (cancelBtn) {
         cancelBtn.style.display = 'block';
         okBtn.textContent = confirmText;
         okBtn.style.background = '#ff4757';
         okBtn.style.borderColor = '#ff4757';
-        
+
         const newOkBtn = okBtn.cloneNode(true);
         const newCancelBtn = cancelBtn.cloneNode(true);
         okBtn.parentNode.replaceChild(newOkBtn, okBtn);
         cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
-        
+
         newCancelBtn.addEventListener('click', () => {
             document.getElementById('alert-modal').classList.add('hidden');
         });
-        
+
         newOkBtn.addEventListener('click', () => {
             document.getElementById('alert-modal').classList.add('hidden');
-            if(onConfirm) onConfirm();
+            if (onConfirm) onConfirm();
         });
     }
-    
+
     document.getElementById('alert-modal').classList.remove('hidden');
 };
 
@@ -744,7 +796,7 @@ document.getElementById('btn-confirm-ok')?.addEventListener('click', () => {
 
 document.getElementById('btn-load-data').addEventListener('click', async () => {
     try {
-        const res = await fetch(`${CONFIG.API_BASE_URL}/request_api/load.php?projectId=${projectId}&env=${TARGET_ENV}`, {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/load.php?projectId=${projectId}&env=${TARGET_ENV}`, {
             headers: {
                 'bypass-tunnel-reminder': 'true'
             }
@@ -764,15 +816,17 @@ document.getElementById('btn-load-data').addEventListener('click', async () => {
     }
 });
 
-window.switchToEditMode = function() {
+window.switchToEditMode = function () {
     currentMode = 'edit';
     renderForm();
     window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
-window.cancelEdit = function() {
-    alert("수정이 취소되었습니다. 목록 화면으로 돌아갑니다.");
-    window.location.href = 'admin.html';
+window.cancelEdit = function () {
+    // 저장되지 않은 변경사항은 무시하고 다시 보기 모드로 렌더링
+    currentMode = 'view';
+    renderForm();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 
@@ -783,7 +837,7 @@ function setupAdminTrigger() {
 
     trigger.addEventListener('click', () => {
         adminClickCount++;
-        
+
         clearTimeout(adminClickTimer);
         adminClickTimer = setTimeout(() => {
             if (adminClickCount === 1) {
@@ -807,12 +861,9 @@ function setupAdminTrigger() {
 
 function updateModeUI() {
     const banner = document.getElementById('mode-banner');
-    if (!banner) return;
-    
-    // Always hide banner, users don't want ribbons
-    banner.style.display = 'none';
+    if (banner) banner.style.display = 'none';
     appContent.classList.remove('read-only-view');
-    
+
     const badge = document.querySelector('.admin-badge');
     if (badge) badge.remove();
     document.querySelector('.app-container').style.overflow = 'visible';
@@ -823,13 +874,13 @@ function updateModeUI() {
     }
 }
 
-window.fillDummyData = function() {
+window.fillDummyData = function () {
     const data = {};
     formData.forEach(section => {
         section.items.forEach(item => {
             // Uncheck "확인중" for test data
             data[`${item.id}_checking`] = false;
-            
+
             if (item.type === 'text' || item.type === 'url' || item.type === 'textarea') {
                 data[item.id] = `테스트 ${item.label} 데이터`;
             } else if (item.type === 'radio') {
@@ -847,11 +898,11 @@ window.fillDummyData = function() {
             }
         });
     });
-    
+
     data['site_name'] = "유컴패니온 자동입력 테스트";
     currentData = data;
     renderForm();
-    
+
     // Add ?test=true to URL without reloading to ensure test mode acts
     const url = new URL(window.location);
     url.searchParams.set('test', 'true');
