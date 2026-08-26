@@ -289,7 +289,11 @@ function renderForm() {
                 html += `<input type="${item.type}" id="${item.id}" name="${item.id}" class="form-control" placeholder="${item.placeholder || ''}" value="${val}">`;
             } else if (item.type === 'file') {
                 const hasExistingFile = (val && val !== '확인중');
-                const existingFilename = hasExistingFile ? (val.split('/').pop() || '다운로드') : '';
+                const existingFilename = hasExistingFile ? (val.split('/').pop().replace(/^[a-z0-9]+_/, '') || '다운로드') : '';
+                let absoluteUrl = val;
+                if (hasExistingFile && !val.startsWith('http')) {
+                    absoluteUrl = new URL(val, apiUrl).href;
+                }
                 
                 const btnLabel = hasExistingFile ? '파일 변경하기' : '파일 첨부하기';
                 
@@ -306,16 +310,16 @@ function renderForm() {
                                 displayArea.innerHTML = '<a href=\\'javascript:void(0)\\' class=\\'file-download-link\\' style=\\'color: var(--primary); text-decoration: underline; display: inline-flex; align-items: center; gap: 4px; font-weight: 500;\\'><i class=\\'ph ph-download-simple\\'></i> ' + this.files[0].name + '</a>';
                                 btnText.textContent = '파일 변경하기';
                             } else {
-                                ${hasExistingFile ? `displayArea.innerHTML = '<a href=\\'${val}\\' target=\\'_blank\\' class=\\'file-download-link\\' style=\\'color: var(--primary); text-decoration: underline; display: inline-flex; align-items: center; gap: 4px; font-weight: 500;\\'><i class=\\'ph ph-download-simple\\'></i> ${existingFilename}</a>'; btnText.textContent = '파일 변경하기';` : `displayArea.innerHTML = '<span class=\\'file-empty-text\\' style=\\'color: #999; display: none; align-items: center; gap: 4px;\\'><i class=\\'ph ph-warning-circle\\'></i> 미입력 항목입니다.</span>'; btnText.textContent = '파일 첨부하기';`}
+                                ${hasExistingFile ? `displayArea.innerHTML = '<a href=\\'${absoluteUrl}\\' target=\\'_blank\\' class=\\'file-download-link\\' style=\\'color: var(--primary); text-decoration: underline; display: inline-flex; align-items: center; gap: 4px; font-weight: 500;\\'><i class=\\'ph ph-download-simple\\'></i> ${existingFilename}</a>'; btnText.textContent = '파일 변경하기';` : `displayArea.innerHTML = '<span class=\\'file-empty-text\\' style=\\'color: #999; display: none; align-items: center; gap: 4px;\\'><i class=\\'ph ph-warning-circle\\'></i> 미입력 항목입니다.</span>'; btnText.textContent = '파일 첨부하기';`}
                             }
                         ">
                     </div>
                     
                     <div id="file_display_${item.id}" class="file-display-area" style="font-size: 0.95rem;">
                         ${hasExistingFile ? 
-                            `<a href="${val}" target="_blank" class="file-download-link" style="color: var(--primary); text-decoration: underline; display: inline-flex; align-items: center; gap: 4px; font-weight: 500;">
+                            `<a href="${absoluteUrl}" target="_blank" class="file-download-link" style="color: var(--primary); text-decoration: underline; display: inline-flex; align-items: center; gap: 4px; font-weight: 500;">
                                 <i class="ph ph-download-simple"></i> ${existingFilename}
-                            </a>` 
+                            </a>`  
                             : 
                             `<span class="file-empty-text" style="color: #999; display: none; align-items: center; gap: 4px;">
                                 <i class="ph ph-warning-circle"></i> 미입력 항목입니다.
@@ -609,21 +613,48 @@ window.deleteData = async function () {
 };
 
 window.showHtmlMailModal = function () {
-    let mailHtml = `<div style="font-family: sans-serif; max-width: 800px; margin: 0 auto; color: #333; line-height: 1.6;">\n`;
-    mailHtml += `  <h2 style="color: #5f3dc4; border-bottom: 2px solid #5f3dc4; padding-bottom: 10px;">유컴패니온 프로젝트 구축 상세 질문지</h2>\n`;
+    let mailHtml = `
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; background-color: #ffffff;">
+  <tr>
+    <td align="center" style="padding: 20px 0;">
+      <!-- 전체를 600px 고정 테이블로 감싸기 -->
+      <table width="600" cellpadding="0" cellspacing="0" border="0" style="width: 100%; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.6; border-collapse: collapse;">
+        <tr>
+          <td>
+            <h2 style="color: #e21521; border-bottom: 2px solid #e21521; padding-bottom: 12px; margin-bottom: 30px; font-size: 24px; width: 100%;">유컴패니온 프로젝트 구축 상세 질문지</h2>\n`;
 
     formData.forEach(section => {
-        mailHtml += `  <h3 style="background: #f8f9fa; padding: 10px; border-radius: 4px; margin-top: 20px;">[${section.category}]</h3>\n`;
-        mailHtml += `  <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px;">\n`;
+        mailHtml += `
+            <!-- 그룹 제목 -->
+            <table width="600" cellpadding="0" cellspacing="0" border="0" style="width: 100%; max-width: 600px; border-collapse: collapse; margin-top: 30px;">
+              <tr>
+                <td style="background: #343a40; color: #ffffff; padding: 12px 16px; font-weight: bold; font-size: 16px; border: 1px solid #343a40; border-bottom: none;">
+                    [${section.category}]
+                </td>
+              </tr>
+            </table>
+            <!-- 내부 표 -->
+            <table width="600" cellpadding="0" cellspacing="0" border="0" style="width: 100%; max-width: 600px; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; border: 1px solid #dee2e6; table-layout: fixed;">\n`;
         section.items.forEach(item => {
             let val = currentData[item.id];
             let isChecking = currentData[`${item.id}_checking`] === true;
             let displayVal = "";
 
-            if (Array.isArray(val)) {
+            if (item.type === 'file' && val) {
+                let absoluteUrl = val;
+                if (!val.startsWith('http')) {
+                    absoluteUrl = new URL(val, apiUrl).href;
+                }
+                const filename = val.split('/').pop().replace(/^[a-z0-9]+_/, '');
+                displayVal = `<a href="${absoluteUrl}" target="_blank" style="color: #e21521; text-decoration: underline; font-weight: bold; word-break: break-all;">${filename}</a>`;
+            } else if (Array.isArray(val)) {
                 displayVal = val.join(', ');
             } else if (val) {
-                displayVal = val;
+                if (item.type === 'textarea') {
+                    displayVal = val.replace(/\n/g, '<br>');
+                } else {
+                    displayVal = val;
+                }
             } else {
                 if (isChecking) {
                     displayVal = "<span style='color: #ff9f43; font-weight: bold;'>확인중</span>";
@@ -631,14 +662,21 @@ window.showHtmlMailModal = function () {
                     displayVal = "<span style='color: #999;'>미입력</span>";
                 }
             }
-            mailHtml += `    <tr>\n`;
-            mailHtml += `      <th style="width: 30%; text-align: left; padding: 12px 10px; border-bottom: 1px solid #eee; background: #fafafa; font-weight: 600;">${item.label}</th>\n`;
-            mailHtml += `      <td style="padding: 12px 10px; border-bottom: 1px solid #eee;">${displayVal}</td>\n`;
-            mailHtml += `    </tr>\n`;
+            mailHtml += `
+              <tr>
+                <th width="180" style="width: 180px; text-align: left; padding: 14px 16px; border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; background: #f8f9fa; font-weight: 600; color: #495057;">${item.label}</th>
+                <td width="420" style="width: 420px; padding: 14px 16px; border-bottom: 1px solid #dee2e6; background: #ffffff; color: #212529; word-break: break-word;">${displayVal}</td>
+              </tr>\n`;
         });
-        mailHtml += `  </table>\n`;
+        mailHtml += `            </table>\n`;
     });
-    mailHtml += `</div>`;
+    mailHtml += `
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>`;
 
     document.getElementById('html-source-area').value = mailHtml;
     document.getElementById('html-preview-area').innerHTML = mailHtml;
